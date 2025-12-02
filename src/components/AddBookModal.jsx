@@ -2,269 +2,327 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Trash2, Loader2, BookOpen, Users, FileText } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-
-const genres = ['fiction', 'mystery', 'romance', 'fantasy', 'sci-fi', 'classic', 'thriller', 'historical'];
+import { Loader2, BookOpen, Sparkles, Search } from 'lucide-react';
 
 export default function AddBookModal({ open, onOpenChange, onBookAdded }) {
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('details');
-  const [book, setBook] = useState({
-    title: '',
-    author: '',
-    description: '',
-    cover_image: '',
-    genre: '',
-    chapters: [{ title: 'Chapter 1', content: '' }],
-    characters: [{ name: '', description: '', personality: '', avatar: '' }]
-  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [step, setStep] = useState('search'); // search, generating, preview
+  const [generatedBook, setGeneratedBook] = useState(null);
+  const [loadingMessage, setLoadingMessage] = useState('');
 
-  const handleSave = async () => {
-    if (!book.title || !book.author) return;
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
     
     setLoading(true);
-    const cleanedBook = {
-      ...book,
-      chapters: book.chapters.filter(c => c.title && c.content),
-      characters: book.characters.filter(c => c.name)
-    };
+    setStep('generating');
+    setLoadingMessage('Finding book information...');
+
+    const bookInfoResponse = await base44.integrations.Core.InvokeLLM({
+      prompt: `Find information about the book "${searchQuery}". Provide accurate details about this real book.
+      
+Return the book's title, author, a compelling description/synopsis, genre, and generate a cover image description.`,
+      add_context_from_internet: true,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          author: { type: 'string' },
+          description: { type: 'string', description: 'A compelling 2-3 sentence synopsis' },
+          genre: { type: 'string', enum: ['fiction', 'mystery', 'romance', 'fantasy', 'sci-fi', 'classic', 'thriller', 'historical'] },
+          cover_description: { type: 'string', description: 'Description for generating a book cover image' }
+        }
+      }
+    });
+
+    setLoadingMessage('Generating book cover...');
     
-    const newBook = await base44.entities.Book.create(cleanedBook);
+    const coverResponse = await base44.integrations.Core.GenerateImage({
+      prompt: `Book cover art for "${bookInfoResponse.title}" by ${bookInfoResponse.author}. ${bookInfoResponse.cover_description}. Professional book cover design, high quality, artistic.`
+    });
+
+    setLoadingMessage('Extracting main characters...');
+
+    const charactersResponse = await base44.integrations.Core.InvokeLLM({
+      prompt: `For the book "${bookInfoResponse.title}" by ${bookInfoResponse.author}, identify the main characters that readers would want to chat with.
+
+For each character provide:
+- Their name
+- A brief description of who they are in the story
+- Their personality traits and how they speak/behave
+- 3 suggested conversation starters or discussion questions a reader might ask them
+
+Focus on the most interesting and central characters (3-5 characters).`,
+      add_context_from_internet: true,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          characters: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                description: { type: 'string' },
+                personality: { type: 'string' },
+                suggested_questions: { 
+                  type: 'array', 
+                  items: { type: 'string' },
+                  description: 'Questions readers might ask this character'
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    setLoadingMessage('Creating chapter summaries...');
+
+    const chaptersResponse = await base44.integrations.Core.InvokeLLM({
+      prompt: `For the book "${bookInfoResponse.title}" by ${bookInfoResponse.author}, create a reading guide with key scenes or chapter summaries.
+
+Create 5-8 sections that cover the major parts of the story. For each section:
+- Give it a title that captures that part of the story
+- Write 2-3 paragraphs summarizing the key events, character developments, and themes
+- Include enough detail that a reader can discuss the story with characters
+
+This is for a book club app where users will chat with AI versions of the characters while reading these summaries.`,
+      add_context_from_internet: true,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          chapters: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                title: { type: 'string' },
+                content: { type: 'string' }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    setLoadingMessage('Generating discussion ideas...');
+
+    const discussionResponse = await base44.integrations.Core.InvokeLLM({
+      prompt: `For the book "${bookInfoResponse.title}" by ${bookInfoResponse.author}, create thoughtful discussion questions and conversation ideas for a book club.
+
+Include:
+- Questions about themes and symbolism
+- Character analysis questions
+- Questions that compare characters' perspectives
+- Thought-provoking "what if" scenarios
+- Questions about the author's choices
+
+Generate 8-10 diverse discussion questions.`,
+      add_context_from_internet: true,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          discussion_questions: {
+            type: 'array',
+            items: { type: 'string' }
+          }
+        }
+      }
+    });
+
+    const fullBook = {
+      title: bookInfoResponse.title,
+      author: bookInfoResponse.author,
+      description: bookInfoResponse.description,
+      genre: bookInfoResponse.genre,
+      cover_image: coverResponse.url,
+      chapters: chaptersResponse.chapters,
+      characters: charactersResponse.characters,
+      discussion_questions: discussionResponse.discussion_questions
+    };
+
+    setGeneratedBook(fullBook);
+    setStep('preview');
+    setLoading(false);
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    const newBook = await base44.entities.Book.create(generatedBook);
     onBookAdded(newBook);
     setLoading(false);
     onOpenChange(false);
-    setBook({
-      title: '',
-      author: '',
-      description: '',
-      cover_image: '',
-      genre: '',
-      chapters: [{ title: 'Chapter 1', content: '' }],
-      characters: [{ name: '', description: '', personality: '', avatar: '' }]
-    });
+    resetModal();
   };
 
-  const addChapter = () => {
-    setBook(prev => ({
-      ...prev,
-      chapters: [...prev.chapters, { title: `Chapter ${prev.chapters.length + 1}`, content: '' }]
-    }));
+  const resetModal = () => {
+    setSearchQuery('');
+    setStep('search');
+    setGeneratedBook(null);
+    setLoadingMessage('');
   };
 
-  const removeChapter = (idx) => {
-    setBook(prev => ({
-      ...prev,
-      chapters: prev.chapters.filter((_, i) => i !== idx)
-    }));
-  };
-
-  const updateChapter = (idx, field, value) => {
-    setBook(prev => ({
-      ...prev,
-      chapters: prev.chapters.map((ch, i) => i === idx ? { ...ch, [field]: value } : ch)
-    }));
-  };
-
-  const addCharacter = () => {
-    setBook(prev => ({
-      ...prev,
-      characters: [...prev.characters, { name: '', description: '', personality: '', avatar: '' }]
-    }));
-  };
-
-  const removeCharacter = (idx) => {
-    setBook(prev => ({
-      ...prev,
-      characters: prev.characters.filter((_, i) => i !== idx)
-    }));
-  };
-
-  const updateCharacter = (idx, field, value) => {
-    setBook(prev => ({
-      ...prev,
-      characters: prev.characters.map((ch, i) => i === idx ? { ...ch, [field]: value } : ch)
-    }));
+  const handleClose = () => {
+    onOpenChange(false);
+    resetModal();
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-amber-600" />
-            Add New Book
+            <Sparkles className="w-5 h-5 text-amber-600" />
+            Add Book with AI
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid grid-cols-3 mb-4">
-            <TabsTrigger value="details" className="gap-2">
-              <BookOpen className="w-4 h-4" />
-              Details
-            </TabsTrigger>
-            <TabsTrigger value="chapters" className="gap-2">
-              <FileText className="w-4 h-4" />
-              Chapters
-            </TabsTrigger>
-            <TabsTrigger value="characters" className="gap-2">
-              <Users className="w-4 h-4" />
-              Characters
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="flex-1 overflow-y-auto pr-2">
-            <TabsContent value="details" className="space-y-4 mt-0">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Title *</Label>
-                  <Input
-                    id="title"
-                    value={book.title}
-                    onChange={(e) => setBook(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Book title"
-                  />
+        <div className="flex-1 overflow-y-auto">
+          {step === 'search' && (
+            <div className="py-8 px-4">
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
+                  <Search className="w-8 h-8 text-amber-500" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="author">Author *</Label>
-                  <Input
-                    id="author"
-                    value={book.author}
-                    onChange={(e) => setBook(prev => ({ ...prev, author: e.target.value }))}
-                    placeholder="Author name"
-                  />
-                </div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">Search for a Book</h3>
+                <p className="text-sm text-slate-500 max-w-md mx-auto">
+                  Enter a book title and we'll automatically generate chapters, characters, and discussion questions
+                </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="genre">Genre</Label>
-                  <Select value={book.genre} onValueChange={(v) => setBook(prev => ({ ...prev, genre: v }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select genre" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {genres.map(g => (
-                        <SelectItem key={g} value={g} className="capitalize">{g}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cover">Cover Image URL</Label>
-                  <Input
-                    id="cover"
-                    value={book.cover_image}
-                    onChange={(e) => setBook(prev => ({ ...prev, cover_image: e.target.value }))}
-                    placeholder="https://..."
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={book.description}
-                  onChange={(e) => setBook(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Book synopsis..."
-                  rows={4}
+              <div className="max-w-md mx-auto space-y-4">
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  placeholder="e.g., To Kill a Mockingbird, 1984, Harry Potter..."
+                  className="text-center"
                 />
+                <Button 
+                  onClick={handleSearch}
+                  disabled={!searchQuery.trim() || loading}
+                  className="w-full bg-amber-600 hover:bg-amber-700"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Generate Book Content
+                </Button>
               </div>
-            </TabsContent>
+            </div>
+          )}
 
-            <TabsContent value="chapters" className="space-y-4 mt-0">
-              {book.chapters.map((chapter, idx) => (
-                <div key={idx} className="p-4 border rounded-xl bg-slate-50/50 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Input
-                      value={chapter.title}
-                      onChange={(e) => updateChapter(idx, 'title', e.target.value)}
-                      placeholder="Chapter title"
-                      className="flex-1"
-                    />
-                    {book.chapters.length > 1 && (
-                      <Button variant="ghost" size="icon" onClick={() => removeChapter(idx)}>
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
+          {step === 'generating' && (
+            <div className="py-16 text-center">
+              <Loader2 className="w-12 h-12 animate-spin text-amber-500 mx-auto mb-4" />
+              <p className="text-slate-600 font-medium">{loadingMessage}</p>
+              <p className="text-sm text-slate-400 mt-2">This may take a minute...</p>
+            </div>
+          )}
+
+          {step === 'preview' && generatedBook && (
+            <div className="space-y-6 p-2">
+              {/* Book Header */}
+              <div className="flex gap-4">
+                {generatedBook.cover_image && (
+                  <img 
+                    src={generatedBook.cover_image} 
+                    alt={generatedBook.title}
+                    className="w-24 h-36 object-cover rounded-lg shadow-md"
+                  />
+                )}
+                <div className="flex-1">
+                  <span className="text-xs font-medium uppercase text-amber-600">{generatedBook.genre}</span>
+                  <h3 className="text-xl font-semibold text-slate-900">{generatedBook.title}</h3>
+                  <p className="text-sm text-slate-500 mb-2">by {generatedBook.author}</p>
+                  <p className="text-sm text-slate-600">{generatedBook.description}</p>
+                </div>
+              </div>
+
+              {/* Characters */}
+              <div>
+                <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                  Characters ({generatedBook.characters?.length})
+                </h4>
+                <div className="space-y-3">
+                  {generatedBook.characters?.map((char, idx) => (
+                    <div key={idx} className="bg-slate-50 rounded-lg p-3">
+                      <p className="font-medium text-slate-900">{char.name}</p>
+                      <p className="text-xs text-slate-500 mt-1">{char.description}</p>
+                      {char.suggested_questions && (
+                        <div className="mt-2 space-y-1">
+                          {char.suggested_questions.slice(0, 2).map((q, qIdx) => (
+                            <p key={qIdx} className="text-xs text-amber-700 bg-amber-50 px-2 py-1 rounded">
+                              💬 {q}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Chapters */}
+              <div>
+                <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                  Chapters ({generatedBook.chapters?.length})
+                </h4>
+                <div className="space-y-2">
+                  {generatedBook.chapters?.map((ch, idx) => (
+                    <div key={idx} className="flex items-center gap-3 text-sm">
+                      <span className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-medium text-slate-500">
+                        {idx + 1}
+                      </span>
+                      <span className="text-slate-700">{ch.title}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Discussion Questions */}
+              {generatedBook.discussion_questions && (
+                <div>
+                  <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    Discussion Questions ({generatedBook.discussion_questions.length})
+                  </h4>
+                  <div className="space-y-2">
+                    {generatedBook.discussion_questions.slice(0, 4).map((q, idx) => (
+                      <p key={idx} className="text-sm text-slate-600 bg-slate-50 rounded-lg p-3">
+                        {q}
+                      </p>
+                    ))}
+                    {generatedBook.discussion_questions.length > 4 && (
+                      <p className="text-xs text-slate-400 text-center">
+                        +{generatedBook.discussion_questions.length - 4} more questions
+                      </p>
                     )}
                   </div>
-                  <Textarea
-                    value={chapter.content}
-                    onChange={(e) => updateChapter(idx, 'content', e.target.value)}
-                    placeholder="Chapter content..."
-                    rows={6}
-                  />
                 </div>
-              ))}
-              <Button variant="outline" onClick={addChapter} className="w-full gap-2">
-                <Plus className="w-4 h-4" />
-                Add Chapter
-              </Button>
-            </TabsContent>
-
-            <TabsContent value="characters" className="space-y-4 mt-0">
-              <p className="text-sm text-slate-500">
-                Add characters that readers can chat with while reading.
-              </p>
-              {book.characters.map((char, idx) => (
-                <div key={idx} className="p-4 border rounded-xl bg-slate-50/50 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Input
-                      value={char.name}
-                      onChange={(e) => updateCharacter(idx, 'name', e.target.value)}
-                      placeholder="Character name"
-                      className="flex-1"
-                    />
-                    {book.characters.length > 1 && (
-                      <Button variant="ghost" size="icon" onClick={() => removeCharacter(idx)}>
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    )}
-                  </div>
-                  <Input
-                    value={char.avatar}
-                    onChange={(e) => updateCharacter(idx, 'avatar', e.target.value)}
-                    placeholder="Avatar image URL (optional)"
-                  />
-                  <Textarea
-                    value={char.description}
-                    onChange={(e) => updateCharacter(idx, 'description', e.target.value)}
-                    placeholder="Character description (who they are in the story)"
-                    rows={2}
-                  />
-                  <Textarea
-                    value={char.personality}
-                    onChange={(e) => updateCharacter(idx, 'personality', e.target.value)}
-                    placeholder="Personality traits (how they speak and behave)"
-                    rows={2}
-                  />
-                </div>
-              ))}
-              <Button variant="outline" onClick={addCharacter} className="w-full gap-2">
-                <Plus className="w-4 h-4" />
-                Add Character
-              </Button>
-            </TabsContent>
-          </div>
-        </Tabs>
+              )}
+            </div>
+          )}
+        </div>
 
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleSave} 
-            disabled={!book.title || !book.author || loading}
-            className="bg-amber-600 hover:bg-amber-700"
-          >
-            {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            Add Book
-          </Button>
+          {step === 'preview' && (
+            <>
+              <Button variant="outline" onClick={resetModal}>
+                Search Another
+              </Button>
+              <Button 
+                onClick={handleSave}
+                disabled={loading}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Add to Library
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
