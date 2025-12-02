@@ -13,9 +13,10 @@ export default function CharacterChatPanel({
   currentChapter,
   chat,
   onUpdateChat,
-  onClose 
+  onClose,
+  prefilledQuestion = ''
 }) {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(prefilledQuestion);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
@@ -26,6 +27,12 @@ export default function CharacterChatPanel({
   useEffect(() => {
     scrollToBottom();
   }, [chat?.messages]);
+
+  useEffect(() => {
+    if (prefilledQuestion) {
+      setInput(prefilledQuestion);
+    }
+  }, [prefilledQuestion]);
 
   const handleSend = async () => {
     if (!input.trim() || isTyping) return;

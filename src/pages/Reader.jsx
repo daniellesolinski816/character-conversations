@@ -8,6 +8,7 @@ import { ArrowLeft, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ReaderView from '@/components/ReaderView';
 import CharacterChatPanel from '@/components/CharacterChatPanel';
+import DiscussionPanel from '@/components/DiscussionPanel';
 
 export default function Reader() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -16,6 +17,8 @@ export default function Reader() {
 
   const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [currentChat, setCurrentChat] = useState(null);
+  const [showDiscussion, setShowDiscussion] = useState(false);
+  const [prefilledQuestion, setPrefilledQuestion] = useState('');
 
   const { data: book, isLoading: bookLoading } = useQuery({
     queryKey: ['book', bookId],
@@ -68,8 +71,10 @@ export default function Reader() {
     }
   };
 
-  const handleOpenChat = (character) => {
+  const handleOpenChat = (character, question = '') => {
     setSelectedCharacter(character);
+    setPrefilledQuestion(question);
+    setShowDiscussion(false);
     const existingChat = chats.find(c => c.character_name === character.name);
     setCurrentChat(existingChat || { book_id: bookId, character_name: character.name, messages: [] });
   };
@@ -77,11 +82,23 @@ export default function Reader() {
   const handleCloseChat = () => {
     setSelectedCharacter(null);
     setCurrentChat(null);
+    setPrefilledQuestion('');
   };
 
   const handleUpdateChat = (updatedChat) => {
     setCurrentChat(updatedChat);
     queryClient.invalidateQueries(['character-chats', bookId]);
+  };
+
+  const handleOpenDiscussion = () => {
+    setShowDiscussion(true);
+    setSelectedCharacter(null);
+    setCurrentChat(null);
+  };
+
+  const handleSelectQuestionFromDiscussion = (question) => {
+    setPrefilledQuestion(question);
+    setShowDiscussion(false);
   };
 
   if (bookLoading || progressLoading) {
@@ -136,8 +153,21 @@ export default function Reader() {
         currentChapter={currentChapter}
         onChapterChange={handleChapterChange}
         onOpenChat={handleOpenChat}
+        onOpenDiscussion={handleOpenDiscussion}
         characters={book.characters}
       />
+
+      {/* Discussion Panel */}
+      <AnimatePresence>
+        {showDiscussion && (
+          <DiscussionPanel
+            book={book}
+            onSelectQuestion={handleSelectQuestionFromDiscussion}
+            onSelectCharacter={(char) => handleOpenChat(char)}
+            onClose={() => setShowDiscussion(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Chat Panel */}
       <AnimatePresence>
@@ -149,6 +179,7 @@ export default function Reader() {
             chat={currentChat}
             onUpdateChat={handleUpdateChat}
             onClose={handleCloseChat}
+            prefilledQuestion={prefilledQuestion}
           />
         )}
       </AnimatePresence>
