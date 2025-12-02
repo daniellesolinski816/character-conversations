@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, BookOpen, Clock, Users, Play } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, Users, Play, Lightbulb, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CharacterAvatar from '@/components/CharacterAvatar';
 
@@ -205,16 +205,57 @@ export default function BookDetail() {
                     <p className="text-sm text-slate-500 mt-1 line-clamp-2">
                       {char.description}
                     </p>
-                    {char.personality && (
-                      <p className="text-xs text-amber-600 mt-2 italic line-clamp-1">
-                        "{char.personality}"
-                      </p>
+                    {char.suggested_questions && char.suggested_questions.length > 0 && (
+                      <div className="mt-3 space-y-1">
+                        <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide flex items-center gap-1">
+                          <MessageCircle className="w-3 h-3" />
+                          Try asking:
+                        </p>
+                        <p className="text-xs text-amber-700 bg-amber-50 px-2 py-1.5 rounded-lg line-clamp-2">
+                          "{char.suggested_questions[0]}"
+                        </p>
+                      </div>
                     )}
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
+        </motion.section>
+      )}
+
+      {/* Discussion Questions */}
+      {book.discussion_questions && book.discussion_questions.length > 0 && (
+        <motion.section
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="max-w-5xl mx-auto px-6 py-12"
+        >
+          <h2 className="text-xl font-semibold text-slate-900 mb-6 flex items-center gap-3">
+            <Lightbulb className="w-5 h-5 text-amber-600" />
+            Discussion Questions
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {book.discussion_questions.slice(0, 6).map((question, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + idx * 0.1 }}
+                className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-100"
+              >
+                <p className="text-sm text-slate-700 leading-relaxed">{question}</p>
+              </motion.div>
+            ))}
+          </div>
+          
+          {book.discussion_questions.length > 6 && (
+            <p className="text-center text-sm text-slate-400 mt-4">
+              +{book.discussion_questions.length - 6} more questions available while reading
+            </p>
+          )}
         </motion.section>
       )}
 
