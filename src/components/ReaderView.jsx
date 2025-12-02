@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, BookOpen, MessageCircle, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, MessageCircle, Users, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,6 +10,7 @@ export default function ReaderView({
   currentChapter, 
   onChapterChange,
   onOpenChat,
+  onOpenDiscussion,
   characters 
 }) {
   const [showCharacters, setShowCharacters] = useState(false);
@@ -68,6 +69,15 @@ export default function ReaderView({
                   ))}
                 </div>
 
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onOpenDiscussion}
+                  className="shrink-0 rounded-full border-amber-200 text-amber-700 hover:bg-amber-50"
+                >
+                  <Lightbulb className="w-4 h-4 mr-2" />
+                  Ideas
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
