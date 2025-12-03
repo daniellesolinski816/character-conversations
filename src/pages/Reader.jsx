@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -67,6 +67,32 @@ export default function Reader() {
         book_id: bookId,
         current_chapter: newChapter,
         last_read: new Date().toISOString()
+      });
+    }
+  };
+
+  const handleSettingsChange = async (newSettings) => {
+    if (progress?.id) {
+      await updateProgressMutation.mutateAsync({
+        id: progress.id,
+        data: { reading_settings: newSettings }
+      });
+    } else {
+      await createProgressMutation.mutateAsync({
+        book_id: bookId,
+        current_chapter: 0,
+        reading_settings: newSettings,
+        last_read: new Date().toISOString()
+      });
+    }
+  };
+
+  const handleSaveWord = async (wordData) => {
+    const existingWords = progress?.saved_words || [];
+    if (progress?.id) {
+      await updateProgressMutation.mutateAsync({
+        id: progress.id,
+        data: { saved_words: [...existingWords, wordData] }
       });
     }
   };
@@ -155,6 +181,9 @@ export default function Reader() {
         onOpenChat={handleOpenChat}
         onOpenDiscussion={handleOpenDiscussion}
         characters={book.characters}
+        readingSettings={progress?.reading_settings}
+        onSettingsChange={handleSettingsChange}
+        onSaveWord={handleSaveWord}
       />
 
       {/* Discussion Panel */}

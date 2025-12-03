@@ -3,6 +3,8 @@ import BookDetail from './pages/BookDetail';
 import Reader from './pages/Reader';
 import BookClubs from './pages/BookClubs';
 import ClubDetail from './pages/ClubDetail';
+import Discussion from './pages/Discussion';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -11,9 +13,11 @@ export const PAGES = {
     "Reader": Reader,
     "BookClubs": BookClubs,
     "ClubDetail": ClubDetail,
+    "Discussion": Discussion,
 }
 
 export const pagesConfig = {
     mainPage: "Home",
     Pages: PAGES,
+    Layout: __Layout,
 };

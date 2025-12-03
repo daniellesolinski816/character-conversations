@@ -1,9 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, BookOpen, MessageCircle, Users, Lightbulb } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, BookOpen, MessageCircle, Users, Lightbulb, Trophy, BookMarked } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import CharacterAvatar from './CharacterAvatar';
+import ReadingSettings from './ReadingSettings';
+import VocabularyHelper from './VocabularyHelper';
+import ReadingQuiz from './ReadingQuiz';
+
+const fontSizeMap = {
+  small: 'text-sm',
+  medium: 'text-base',
+  large: 'text-lg',
+  xlarge: 'text-xl',
+};
+
+const lineHeightMap = {
+  compact: 'leading-normal',
+  normal: 'leading-relaxed',
+  relaxed: 'leading-loose',
+};
+
+const themeMap = {
+  light: 'bg-gradient-to-b from-amber-50/30 to-white text-slate-700',
+  sepia: 'bg-amber-100/50 text-amber-950',
+  dark: 'bg-slate-900 text-slate-200',
+};
 
 export default function ReaderView({ 
   book, 
@@ -11,11 +33,36 @@ export default function ReaderView({
   onChapterChange,
   onOpenChat,
   onOpenDiscussion,
-  characters 
+  characters,
+  readingSettings,
+  onSettingsChange,
+  onSaveWord
 }) {
   const [showCharacters, setShowCharacters] = useState(false);
+  const [selectedText, setSelectedText] = useState(null);
+  const [showQuiz, setShowQuiz] = useState(false);
+  
   const chapter = book.chapters?.[currentChapter];
   const totalChapters = book.chapters?.length || 0;
+  
+  const settings = {
+    font_size: readingSettings?.font_size || 'medium',
+    line_height: readingSettings?.line_height || 'normal',
+    theme: readingSettings?.theme || 'light',
+  };
+
+  const handleTextSelection = useCallback(() => {
+    const selection = window.getSelection();
+    const text = selection?.toString().trim();
+    if (text && text.length > 0 && text.length < 50) {
+      setSelectedText(text);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('mouseup', handleTextSelection);
+    return () => document.removeEventListener('mouseup', handleTextSelection);
+  }, [handleTextSelection]);
 
   if (!chapter) {
     return (
@@ -29,20 +76,28 @@ export default function ReaderView({
   }
 
   return (
-    <div className="flex-1 flex flex-col relative bg-gradient-to-b from-amber-50/30 to-white">
+    <div className={cn("flex-1 flex flex-col relative transition-colors duration-300", themeMap[settings.theme])}>
       {/* Floating Character Bar */}
       <AnimatePresence>
         {characters && characters.length > 0 && (
           <motion.div 
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-slate-100"
+            className={cn(
+              "sticky top-0 z-10 backdrop-blur-lg border-b",
+              settings.theme === 'dark' 
+                ? 'bg-slate-900/80 border-slate-800' 
+                : 'bg-white/80 border-slate-100'
+            )}
           >
             <div className="max-w-3xl mx-auto px-6 py-3">
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setShowCharacters(!showCharacters)}
-                  className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                  className={cn(
+                    "flex items-center gap-2 text-sm font-medium transition-colors",
+                    settings.theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+                  )}
                 >
                   <Users className="w-4 h-4" />
                   <span>Characters</span>
@@ -72,6 +127,16 @@ export default function ReaderView({
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={() => setShowQuiz(true)}
+                  className="shrink-0 rounded-full border-amber-200 text-amber-700 hover:bg-amber-50"
+                >
+                  <Trophy className="w-4 h-4 mr-2" />
+                  Quiz
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={onOpenDiscussion}
                   className="shrink-0 rounded-full border-amber-200 text-amber-700 hover:bg-amber-50"
                 >
@@ -87,6 +152,11 @@ export default function ReaderView({
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Chat
                 </Button>
+
+                <ReadingSettings 
+                  settings={settings}
+                  onSettingsChange={onSettingsChange}
+                />
               </div>
             </div>
           </motion.div>
@@ -98,19 +168,42 @@ export default function ReaderView({
         <div className="max-w-3xl mx-auto px-6 py-12 md:py-16">
           {/* Chapter Title */}
           <div className="mb-12 text-center">
-            <span className="text-xs font-medium text-amber-600 uppercase tracking-widest">
+            <span className={cn(
+              "text-xs font-medium uppercase tracking-widest",
+              settings.theme === 'dark' ? 'text-amber-400' : 'text-amber-600'
+            )}>
               Chapter {currentChapter + 1} of {totalChapters}
             </span>
-            <h2 className="text-2xl md:text-3xl font-serif font-semibold text-slate-900 mt-2">
+            <h2 className={cn(
+              "text-2xl md:text-3xl font-serif font-semibold mt-2",
+              settings.theme === 'dark' ? 'text-white' : 'text-slate-900'
+            )}>
               {chapter.title}
             </h2>
           </div>
 
+          {/* Vocabulary Tip */}
+          <div className={cn(
+            "mb-8 p-3 rounded-lg text-center text-sm flex items-center justify-center gap-2",
+            settings.theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-amber-50 text-amber-700'
+          )}>
+            <BookMarked className="w-4 h-4" />
+            Select any word to look up its meaning
+          </div>
+
           {/* Chapter Content */}
-          <article className="prose prose-slate prose-lg max-w-none">
+          <article className={cn(
+            "prose max-w-none font-serif",
+            fontSizeMap[settings.font_size],
+            lineHeightMap[settings.line_height],
+            settings.theme === 'dark' && 'prose-invert'
+          )}>
             {chapter.content?.split('\n').map((paragraph, idx) => (
               paragraph.trim() && (
-                <p key={idx} className="text-slate-700 leading-relaxed font-serif">
+                <p key={idx} className={cn(
+                  lineHeightMap[settings.line_height],
+                  settings.theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                )}>
                   {paragraph}
                 </p>
               )
@@ -120,7 +213,12 @@ export default function ReaderView({
       </div>
 
       {/* Navigation */}
-      <div className="sticky bottom-0 bg-white/80 backdrop-blur-lg border-t border-slate-100">
+      <div className={cn(
+        "sticky bottom-0 backdrop-blur-lg border-t",
+        settings.theme === 'dark' 
+          ? 'bg-slate-900/80 border-slate-800' 
+          : 'bg-white/80 border-slate-100'
+      )}>
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <Button
             variant="ghost"
@@ -146,7 +244,7 @@ export default function ReaderView({
                     "w-2 h-2 rounded-full transition-all",
                     chapterIdx === currentChapter 
                       ? "bg-amber-500 w-6" 
-                      : "bg-slate-200 hover:bg-slate-300"
+                      : settings.theme === 'dark' ? "bg-slate-600 hover:bg-slate-500" : "bg-slate-200 hover:bg-slate-300"
                   )}
                 />
               );
@@ -164,6 +262,26 @@ export default function ReaderView({
           </Button>
         </div>
       </div>
+
+      {/* Vocabulary Helper */}
+      {selectedText && (
+        <VocabularyHelper
+          selectedText={selectedText}
+          bookTitle={book.title}
+          chapterContext={chapter.content}
+          currentChapter={currentChapter}
+          onSaveWord={onSaveWord}
+          onClose={() => setSelectedText(null)}
+        />
+      )}
+
+      {/* Reading Quiz */}
+      <ReadingQuiz
+        open={showQuiz}
+        onOpenChange={setShowQuiz}
+        book={book}
+        currentChapter={currentChapter}
+      />
     </div>
   );
 }
