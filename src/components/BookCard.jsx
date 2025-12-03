@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { BookOpen, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function BookCard({ book, progress }) {
@@ -15,28 +14,17 @@ export default function BookCard({ book, progress }) {
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
       <Link to={createPageUrl(`BookDetail?id=${book.id}`)}>
-        <div className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-500">
-          {/* Cover Image */}
-          <div className="aspect-[2/3] relative overflow-hidden">
+        <div className="group overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-100 hover:shadow-xl transition-shadow duration-500">
+          <div className="relative aspect-[3/4] bg-slate-100">
             {book.cover_image ? (
               <img 
                 src={book.cover_image} 
-                alt={book.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                alt={`Cover art for ${book.title}`}
+                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-                <BookOpen className="w-12 h-12 text-slate-300" />
-              </div>
-            )}
-            
-            {/* Progress Overlay */}
-            {progress && progressPercent > 0 && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/10">
-                <div 
-                  className="h-full bg-amber-500 transition-all duration-300"
-                  style={{ width: `${progressPercent}%` }}
-                />
+              <div className="flex h-full w-full items-center justify-center text-slate-400 text-xs px-4 text-center">
+                No cover yet
               </div>
             )}
 
@@ -46,23 +34,36 @@ export default function BookCard({ book, progress }) {
                 {book.genre}
               </span>
             )}
-          </div>
 
-          {/* Info */}
-          <div className="p-4">
-            <h3 className="font-semibold text-slate-900 text-sm leading-tight mb-1 line-clamp-2">
-              {book.title}
-            </h3>
-            <p className="text-xs text-slate-500">{book.author}</p>
-            
-            {progress && (
-              <div className="flex items-center gap-1.5 mt-3 text-[10px] text-slate-400">
-                <Clock className="w-3 h-3" />
-                <span>Section {progress.current_chapter + 1} of {book.chapters?.length || 0}</span>
+            {/* Progress bar */}
+            {progress && progressPercent > 0 && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
+                <div 
+                  className="h-full bg-amber-500 transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
               </div>
             )}
+
+            {/* Gradient + title overlay at bottom */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-3">
+              <div className="text-xs font-semibold text-white line-clamp-2">
+                {book.title}
+              </div>
+              {book.author && (
+                <div className="text-[11px] text-slate-200 line-clamp-1">
+                  {book.author}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+        
+        {progress && progressPercent > 0 && (
+          <p className="text-xs text-amber-600 mt-2 text-center">
+            {progressPercent}% • Section {progress.current_chapter + 1}
+          </p>
+        )}
       </Link>
     </motion.div>
   );
