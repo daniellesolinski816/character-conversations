@@ -7,6 +7,7 @@ import Discussion from './pages/Discussion';
 import Community from './pages/Community';
 import Challenges from './pages/Challenges';
 import WritingDetail from './pages/WritingDetail';
+import CrossCharacterDialogue from './pages/CrossCharacterDialogue';
 import __Layout from './Layout.jsx';
 
 
@@ -20,6 +21,7 @@ export const PAGES = {
     "Community": Community,
     "Challenges": Challenges,
     "WritingDetail": WritingDetail,
+    "CrossCharacterDialogue": CrossCharacterDialogue,
 }
 
 export const pagesConfig = {
