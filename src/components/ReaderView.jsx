@@ -13,6 +13,7 @@ import CharacterAvatar from './CharacterAvatar';
 import ReadingSettings from './ReadingSettings';
 import VocabularyHelper from './VocabularyHelper';
 import ReadingQuiz from './ReadingQuiz';
+import GroupCharacterChat from './GroupCharacterChat';
 
 const fontSizeMap = {
   small: 'text-sm',
@@ -47,6 +48,7 @@ export default function ReaderView({
   const [showCharacters, setShowCharacters] = useState(false);
   const [selectedText, setSelectedText] = useState(null);
   const [showQuiz, setShowQuiz] = useState(false);
+  const [showGroupChat, setShowGroupChat] = useState(false);
   
   const chapter = book.chapters?.[currentChapter];
   const totalChapters = book.chapters?.length || 0;
@@ -171,6 +173,13 @@ export default function ReaderView({
                         <span>{char.name}</span>
                       </DropdownMenuItem>
                     ))}
+                    <DropdownMenuItem 
+                      onClick={() => setShowGroupChat(true)}
+                      className="gap-2 border-t mt-1 pt-2"
+                    >
+                      <Users className="w-4 h-4" />
+                      <span>Group Chat (1-3)</span>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
 
@@ -303,6 +312,18 @@ export default function ReaderView({
         book={book}
         currentChapter={currentChapter}
       />
+
+      {/* Group Character Chat */}
+      <AnimatePresence>
+        {showGroupChat && (
+          <GroupCharacterChat
+            availableCharacters={characters}
+            storyTitle={book.title}
+            storyContext={chapter?.content || ''}
+            onClose={() => setShowGroupChat(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
