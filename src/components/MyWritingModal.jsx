@@ -25,7 +25,7 @@ export default function MyWritingModal({ open, onOpenChange, onWritingAdded }) {
     setStep('extracting');
 
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `Analyze this creative writing and extract the main characters. For each character, provide detailed information.
+      prompt: `Analyze this creative writing and extract the main characters. For each character, provide detailed information including their emotional arc.
 
 Title: ${title}
 Genre: ${genre}
@@ -41,7 +41,16 @@ Extract up to 5 main characters. For each character provide:
 - personality_traits: comma-separated list of traits (e.g. "brave, impulsive, loyal")
 - values_and_motivations: what they care about, what they fear, what drives them
 - empathy_focus: how chatting with this character could help the writer see different perspectives
-- safety_boundaries: "No NSFW content, no self-harm, no hate speech" (keep this standard)`,
+- safety_boundaries: "No NSFW content, no self-harm, no hate speech" (keep this standard)
+- emotional_arc: analyze their emotional journey:
+  - starting_state: their emotional state at the beginning
+  - growth_points: array of key moments of emotional growth or change
+  - unresolved_conflicts: array of internal or external conflicts still unresolved
+  - potential_growth: where this character could grow next
+- canon_events: array of key events from the story with:
+  - event: brief title
+  - description: what happened
+  - emotional_impact: how it affected them`,
       response_json_schema: {
         type: 'object',
         properties: {
@@ -57,7 +66,27 @@ Extract up to 5 main characters. For each character provide:
                 personality_traits: { type: 'string' },
                 values_and_motivations: { type: 'string' },
                 empathy_focus: { type: 'string' },
-                safety_boundaries: { type: 'string' }
+                safety_boundaries: { type: 'string' },
+                emotional_arc: {
+                  type: 'object',
+                  properties: {
+                    starting_state: { type: 'string' },
+                    growth_points: { type: 'array', items: { type: 'string' } },
+                    unresolved_conflicts: { type: 'array', items: { type: 'string' } },
+                    potential_growth: { type: 'string' }
+                  }
+                },
+                canon_events: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      event: { type: 'string' },
+                      description: { type: 'string' },
+                      emotional_impact: { type: 'string' }
+                    }
+                  }
+                }
               }
             }
           }
@@ -215,6 +244,26 @@ Create questions that explore themes, character motivations, plot decisions, and
                       </div>
                       <p className="text-sm text-slate-600">{char.short_description}</p>
                       <p className="text-xs text-slate-500 mt-2">{char.personality_traits}</p>
+                      
+                      {char.emotional_arc && (
+                        <div className="mt-3 pt-3 border-t border-slate-100">
+                          <p className="text-xs font-medium text-violet-600 mb-1">Emotional Arc</p>
+                          <p className="text-xs text-slate-500">
+                            <span className="font-medium">Start:</span> {char.emotional_arc.starting_state}
+                          </p>
+                          {char.emotional_arc.potential_growth && (
+                            <p className="text-xs text-slate-500 mt-1">
+                              <span className="font-medium">Potential growth:</span> {char.emotional_arc.potential_growth}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                      
+                      {char.canon_events?.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-xs font-medium text-amber-600">{char.canon_events.length} key events</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
