@@ -78,17 +78,17 @@ Focus on the most interesting and central characters (3-5 characters).`,
       }
     });
 
-    setLoadingMessage('Creating chapter summaries...');
+    setLoadingMessage('Creating story sections...');
 
     const chaptersResponse = await base44.integrations.Core.InvokeLLM({
-      prompt: `For the book "${bookInfoResponse.title}" by ${bookInfoResponse.author}, create a reading guide with key scenes or chapter summaries.
+      prompt: `For the book "${bookInfoResponse.title}" by ${bookInfoResponse.author}, create a reading guide with key scenes and story sections.
 
-Create 5-8 sections that cover the major parts of the story. For each section:
-- Give it a title that captures that part of the story
-- Write 2-3 paragraphs summarizing the key events, character developments, and themes
-- Include enough detail that a reader can discuss the story with characters
+    Create 5-8 sections that cover the major parts of the story. For each section:
+    - Give it a title that captures that part of the story
+    - Write 2-3 paragraphs summarizing the key events, character developments, and themes
+    - Include enough detail that a reader can discuss the story with characters
 
-This is for a book club app where users will chat with AI versions of the characters while reading these summaries.`,
+    Note: These are AI-generated story summaries, not the full book text. They help readers explore the narrative and have meaningful conversations with AI characters.`,
       add_context_from_internet: true,
       response_json_schema: {
         type: 'object',
@@ -264,12 +264,13 @@ Generate 8-10 diverse discussion questions.`,
                 </div>
               </div>
 
-              {/* Chapters */}
+              {/* Sections */}
               <div>
                 <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                  Chapters ({generatedBook.chapters?.length})
+                  Story Sections ({generatedBook.chapters?.length})
                 </h4>
+                <p className="text-xs text-slate-500 mb-2">AI-generated summaries for exploration</p>
                 <div className="space-y-2">
                   {generatedBook.chapters?.map((ch, idx) => (
                     <div key={idx} className="flex items-center gap-3 text-sm">

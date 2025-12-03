@@ -9,7 +9,8 @@ export default function Layout({ children, currentPageName }) {
   
   const navItems = [
     { name: 'Home', icon: Home, page: 'Home' },
-    { name: 'Book Clubs', icon: Users, page: 'BookClubs' },
+    { name: 'Community', icon: Users, page: 'Community' },
+    { name: 'Clubs', icon: BookOpen, page: 'BookClubs' },
   ];
 
   if (isReaderPage) {

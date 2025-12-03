@@ -143,9 +143,9 @@ export default function BookDetail() {
               {/* Stats */}
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 mb-8">
                 <div className="flex items-center gap-2 text-sm text-slate-500">
-                  <BookOpen className="w-4 h-4" />
-                  <span>{book.chapters?.length || 0} chapters</span>
-                </div>
+                      <BookOpen className="w-4 h-4" />
+                      <span>{book.chapters?.length || 0} sections</span>
+                    </div>
                 <div className="flex items-center gap-2 text-sm text-slate-500">
                   <Users className="w-4 h-4" />
                   <span>{book.characters?.length || 0} characters</span>
@@ -259,7 +259,7 @@ export default function BookDetail() {
         </motion.section>
       )}
 
-      {/* Chapters Preview */}
+      {/* Sections Preview */}
       {book.chapters && book.chapters.length > 0 && (
         <motion.section
           initial={{ opacity: 0 }}
@@ -269,8 +269,11 @@ export default function BookDetail() {
         >
           <h2 className="text-xl font-semibold text-slate-900 mb-6 flex items-center gap-3">
             <BookOpen className="w-5 h-5 text-amber-600" />
-            Chapters
+            Sections
           </h2>
+          <p className="text-sm text-slate-500 mb-4">
+            AI-generated summaries to help you explore the story and chat with characters
+          </p>
 
           <div className="space-y-2">
             {book.chapters.map((chapter, idx) => (

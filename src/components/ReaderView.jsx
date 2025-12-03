@@ -166,13 +166,13 @@ export default function ReaderView({
       {/* Reader Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-6 py-12 md:py-16">
-          {/* Chapter Title */}
+          {/* Section Title */}
           <div className="mb-12 text-center">
             <span className={cn(
               "text-xs font-medium uppercase tracking-widest",
               settings.theme === 'dark' ? 'text-amber-400' : 'text-amber-600'
             )}>
-              Chapter {currentChapter + 1} of {totalChapters}
+              Section {currentChapter + 1} of {totalChapters}
             </span>
             <h2 className={cn(
               "text-2xl md:text-3xl font-serif font-semibold mt-2",

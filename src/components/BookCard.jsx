@@ -58,7 +58,7 @@ export default function BookCard({ book, progress }) {
             {progress && (
               <div className="flex items-center gap-1.5 mt-3 text-[10px] text-slate-400">
                 <Clock className="w-3 h-3" />
-                <span>Chapter {progress.current_chapter + 1} of {book.chapters?.length || 0}</span>
+                <span>Section {progress.current_chapter + 1} of {book.chapters?.length || 0}</span>
               </div>
             )}
           </div>
