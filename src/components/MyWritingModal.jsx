@@ -15,6 +15,7 @@ export default function MyWritingModal({ open, onOpenChange, onWritingAdded }) {
   const [content, setContent] = useState('');
   const [genre, setGenre] = useState('fiction');
   const [characters, setCharacters] = useState([]);
+  const [discussionQuestions, setDiscussionQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleExtractCharacters = async () => {
@@ -65,6 +66,30 @@ Extract up to 5 main characters. For each character provide:
     });
 
     setCharacters(response.characters || []);
+
+    // Also generate discussion questions
+    const questionsResponse = await base44.integrations.Core.InvokeLLM({
+      prompt: `Generate 5 thought-provoking discussion questions for this creative writing piece.
+
+Title: ${title}
+Genre: ${genre}
+
+Content:
+${content.slice(0, 6000)}
+
+Create questions that explore themes, character motivations, plot decisions, and the writer's craft.`,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          questions: {
+            type: 'array',
+            items: { type: 'string' }
+          }
+        }
+      }
+    });
+
+    setDiscussionQuestions(questionsResponse.questions || []);
     setLoading(false);
     setStep('review');
   };
@@ -76,7 +101,8 @@ Extract up to 5 main characters. For each character provide:
       title,
       content,
       genre,
-      characters
+      characters,
+      discussion_questions: discussionQuestions
     });
 
     setLoading(false);
@@ -91,6 +117,7 @@ Extract up to 5 main characters. For each character provide:
     setContent('');
     setGenre('fiction');
     setCharacters([]);
+    setDiscussionQuestions([]);
   };
 
   const handleClose = (isOpen) => {
