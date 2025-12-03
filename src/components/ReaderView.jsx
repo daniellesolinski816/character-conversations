@@ -59,12 +59,20 @@ export default function ReaderView({
     theme: readingSettings?.theme || 'light',
   };
 
-  const handleTextSelection = useCallback(() => {
-    const selection = window.getSelection();
-    const text = selection?.toString().trim();
-    if (text && text.length > 0 && text.length < 50) {
-      setSelectedText(text);
+  const handleTextSelection = useCallback((e) => {
+    // Ignore selections on buttons or interactive elements
+    if (e.target.closest('button') || e.target.closest('a') || e.target.closest('[role="dialog"]')) {
+      return;
     }
+    
+    // Small delay to ensure selection is complete
+    setTimeout(() => {
+      const selection = window.getSelection();
+      const text = selection?.toString().trim();
+      if (text && text.length > 0 && text.length < 50) {
+        setSelectedText(text);
+      }
+    }, 10);
   }, []);
 
   useEffect(() => {
