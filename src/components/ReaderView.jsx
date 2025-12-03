@@ -225,15 +225,6 @@ export default function ReaderView({
             </h2>
           </div>
 
-          {/* Vocabulary Tip */}
-          <div className={cn(
-            "mb-8 p-3 rounded-lg text-center text-sm flex items-center justify-center gap-2",
-            settings.theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-amber-50 text-amber-700'
-          )}>
-            <BookMarked className="w-4 h-4" />
-            Select any word to look up its meaning
-          </div>
-
           {/* Chapter Content */}
           <article className={cn(
             "prose max-w-none font-serif",
