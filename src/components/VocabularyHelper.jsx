@@ -62,8 +62,14 @@ Provide:
     setSaved(true);
   };
 
+  const handleOpenChange = (open) => {
+    if (!open) {
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={!!selectedText} onOpenChange={onClose}>
+    <Dialog open={!!selectedText} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
