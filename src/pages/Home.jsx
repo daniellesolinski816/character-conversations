@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 import { Plus, BookOpen, Sparkles, Search, PenLine, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -132,15 +134,27 @@ export default function Home() {
                   <PenLine className="w-5 h-5 text-violet-600" />
                   My Writings
                 </h2>
-                <Button 
-                  onClick={() => setShowWritingModal(true)}
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full gap-2 border-violet-200 text-violet-700 hover:bg-violet-50"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Writing
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Link to={createPageUrl('CrossCharacterDialogue')}>
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full gap-2 border-violet-200 text-violet-700 hover:bg-violet-50"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Character Dialogue
+                    </Button>
+                  </Link>
+                  <Button 
+                    onClick={() => setShowWritingModal(true)}
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full gap-2 border-violet-200 text-violet-700 hover:bg-violet-50"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Writing
+                  </Button>
+                </div>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
                 {writings.map((writing) => (
