@@ -39,7 +39,13 @@ Return the book's title, author, a compelling description/synopsis, genre, and g
     setLoadingMessage('Generating book cover...');
     
     const coverResponse = await base44.integrations.Core.GenerateImage({
-      prompt: `Book cover art for "${bookInfoResponse.title}" by ${bookInfoResponse.author}. ${bookInfoResponse.cover_description}. Professional book cover design, high quality, artistic.`
+      prompt: `Clean, text-free book cover illustration for a reading app. STRICT: NO text, letters, words, numbers, logos, symbols, handwriting, or typographic elements of any kind. NO title or author name. This is ONLY background art.
+
+STYLE: Modern, minimal, high-quality illustration or stylized vector art. Clear subject, centered composition, readable as a small thumbnail. Soft lighting, appealing colors, no clutter, no distorted faces. Avoid photorealism; avoid dark, muddy, or chaotic visuals.
+
+INSPIRATION (do NOT write these on the image): "${bookInfoResponse.title}" by ${bookInfoResponse.author}. ${bookInfoResponse.cover_description}
+
+Convey the mood and genre through imagery alone. 3:4 aspect ratio illustration. Absolutely NO text anywhere.`
     });
 
     setLoadingMessage('Extracting main characters...');
