@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, BookOpen, MessageCircle, Users, Lightbulb, Trophy, BookMarked } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import CharacterAvatar from './CharacterAvatar';
@@ -143,15 +149,30 @@ export default function ReaderView({
                   <Lightbulb className="w-4 h-4 mr-2" />
                   Ideas
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onOpenChat(characters[0])}
-                  className="shrink-0 rounded-full border-amber-200 text-amber-700 hover:bg-amber-50"
-                >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Chat
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0 rounded-full border-amber-200 text-amber-700 hover:bg-amber-50"
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Chat
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {characters.map((char, idx) => (
+                      <DropdownMenuItem 
+                        key={idx}
+                        onClick={() => onOpenChat(char)}
+                        className="gap-2"
+                      >
+                        <CharacterAvatar name={char.name} avatar={char.avatar} size="sm" />
+                        <span>{char.name}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
                 <ReadingSettings 
                   settings={settings}
