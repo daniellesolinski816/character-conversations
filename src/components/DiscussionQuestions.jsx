@@ -6,7 +6,15 @@ import { MessageCircleQuestion } from 'lucide-react';
 export function normalizeDiscussionQuestions(raw) {
   if (!raw) return '';
 
-  let text = Array.isArray(raw) ? raw.join('\n\n') : raw.trim();
+  // Handle array of questions - format as numbered list
+  if (Array.isArray(raw)) {
+    return raw
+      .filter(q => q && typeof q === 'string' && q.trim())
+      .map((q, idx) => `${idx + 1}. ${q.trim()}`)
+      .join('\n\n');
+  }
+
+  let text = raw.trim();
 
   // 1. Convert bold section headers like **Themes:** into markdown headings ### Themes
   text = text.replace(
