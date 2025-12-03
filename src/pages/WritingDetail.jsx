@@ -244,6 +244,7 @@ export default function WritingDetail() {
             writing={writing}
             character={selectedCharacter}
             onClose={() => setSelectedCharacter(null)}
+            onCharacterUpdated={handleCharacterUpdated}
           />
         )}
       </AnimatePresence>

@@ -6,11 +6,11 @@ import { MessageCircleQuestion } from 'lucide-react';
 export function normalizeDiscussionQuestions(raw) {
   if (!raw) return '';
 
-  // Handle array of questions - format as numbered list
+  // Handle array of questions - format as bullet list
   if (Array.isArray(raw)) {
     return raw
       .filter(q => q && typeof q === 'string' && q.trim())
-      .map((q, idx) => `${idx + 1}. ${q.trim()}`)
+      .map((q) => `• ${q.trim()}`)
       .join('\n\n');
   }
 
@@ -56,8 +56,19 @@ export default function DiscussionQuestions({ discussion }) {
         </h2>
       </div>
 
-      <div className="prose prose-sm sm:prose-base max-w-none prose-ol:space-y-2 prose-li:text-slate-700">
-        <ReactMarkdown>
+      <div className="prose prose-sm sm:prose-base max-w-none prose-ul:space-y-3 prose-li:text-slate-700 prose-li:leading-relaxed">
+        <ReactMarkdown
+          components={{
+            p: ({ children }) => <p className="text-slate-700 leading-relaxed mb-3">{children}</p>,
+            ul: ({ children }) => <ul className="space-y-3 list-none pl-0">{children}</ul>,
+            li: ({ children }) => (
+              <li className="flex items-start gap-3 bg-slate-50 rounded-lg p-3 border border-slate-100">
+                <span className="text-amber-500 mt-0.5">•</span>
+                <span>{children}</span>
+              </li>
+            ),
+          }}
+        >
           {content}
         </ReactMarkdown>
       </div>
