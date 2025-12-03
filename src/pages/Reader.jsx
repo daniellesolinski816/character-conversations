@@ -116,6 +116,15 @@ export default function Reader() {
     queryClient.invalidateQueries(['character-chats', bookId]);
   };
 
+  const handleCharacterUpdated = async (updatedCharacter) => {
+    // Update the character in the book's characters array
+    const updatedCharacters = book.characters.map(c => 
+      c.name === updatedCharacter.name ? updatedCharacter : c
+    );
+    await base44.entities.Book.update(book.id, { characters: updatedCharacters });
+    queryClient.invalidateQueries(['book', bookId]);
+  };
+
   const handleOpenDiscussion = () => {
     setShowDiscussion(true);
     setSelectedCharacter(null);
@@ -209,6 +218,7 @@ export default function Reader() {
             onUpdateChat={handleUpdateChat}
             onClose={handleCloseChat}
             prefilledQuestion={prefilledQuestion}
+            onCharacterUpdated={handleCharacterUpdated}
           />
         )}
       </AnimatePresence>
