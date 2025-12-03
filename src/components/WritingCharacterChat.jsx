@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Send, Sparkles, Loader2 } from 'lucide-react';
+import { X, Send, Sparkles, Loader2, BookOpen, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import CharacterAvatar from './CharacterAvatar';
 import ChatBubble from './ChatBubble';
+import CharacterContextDrawer from './CharacterContextDrawer';
+import CharacterTrainingModal from './CharacterTrainingModal';
 
 const getSuggestedPrompts = (character) => {
   const role = character.role || 'other';
@@ -42,10 +44,12 @@ const getSuggestedPrompts = (character) => {
   return rolePrompts[role] || rolePrompts.other;
 };
 
-export default function WritingCharacterChat({ writing, character, onClose }) {
+export default function WritingCharacterChat({ writing, character, onClose, onCharacterUpdated }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showContext, setShowContext] = useState(false);
+  const [showTraining, setShowTraining] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -73,6 +77,34 @@ export default function WritingCharacterChat({ writing, character, onClose }) {
       `${m.role === 'user' ? 'Reader' : character.name}: ${m.content}`
     ).join('\n');
 
+    // Build emotional arc context
+    const arcContext = character.emotional_arc ? `
+EMOTIONAL ARC:
+- Starting State: ${character.emotional_arc.starting_state || 'Not defined'}
+- Growth Points: ${character.emotional_arc.growth_points?.join('; ') || 'None'}
+- Unresolved Conflicts: ${character.emotional_arc.unresolved_conflicts?.join('; ') || 'None'}
+- Potential Growth: ${character.emotional_arc.potential_growth || 'Not defined'}` : '';
+
+    // Build canon events context
+    const eventsContext = character.canon_events?.length ? `
+CANON EVENTS IN MY HISTORY:
+${character.canon_events.map(e => `- ${e.event}: ${e.description} (Impact: ${e.emotional_impact})`).join('\n')}` : '';
+
+    // Build relationships context
+    const relationshipsContext = character.relationships?.length ? `
+MY RELATIONSHIPS:
+${character.relationships.map(r => `- ${r.character_name} (${r.relationship_type}): ${r.description}`).join('\n')}` : '';
+
+    // Build training examples context
+    const trainingContext = character.training_examples?.length ? `
+DIALOGUE STYLE EXAMPLES (use these as guidance for how I speak):
+${character.training_examples.map(ex => `When asked "${ex.context}", I respond: "${ex.response}"`).join('\n')}` : '';
+
+    // Build quirks context
+    const quirksContext = character.personality_quirks?.length ? `
+MY QUIRKS & MANNERISMS:
+${character.personality_quirks.map(q => `- ${q}`).join('\n')}` : '';
+
     const prompt = `You are ${character.name}, a character from the user's original creative writing titled "${writing.title}".
 
 CHARACTER PROFILE:
@@ -83,9 +115,14 @@ CHARACTER PROFILE:
 - Personality Traits: ${character.personality_traits || character.personality}
 - Values & Motivations: ${character.values_and_motivations || 'Driven by the events of the story'}
 - Empathy Focus: ${character.empathy_focus || 'Help the writer explore different perspectives'}
+${arcContext}
+${eventsContext}
+${relationshipsContext}
+${quirksContext}
+${trainingContext}
 
 THE STORY CONTEXT (written by the user):
-${writing.content.slice(0, 6000)}
+${writing.content.slice(0, 5000)}
 
 RECENT CONVERSATION:
 ${conversationHistory || 'This is the start of your conversation.'}
@@ -94,12 +131,13 @@ SAFETY BOUNDARIES: ${character.safety_boundaries || 'No NSFW content, no self-ha
 
 IMPORTANT INSTRUCTIONS:
 1. Stay completely in character as ${character.name}
-2. Reference events and details from the user's writing
-3. Use speech patterns and personality consistent with your traits: ${character.personality_traits || character.personality}
-4. Be engaging and help the user explore their own creation
-5. If asked about events not in the story, creatively respond in character based on your backstory and motivations
-6. Keep responses conversational (2-4 sentences)
-7. Respect the safety boundaries at all times
+2. Reference events and details from the user's writing AND your canon events
+3. Use speech patterns consistent with your personality quirks and training examples
+4. When discussing other characters, reflect your defined relationships with them
+5. Let your emotional arc inform your responses - reference your growth points and conflicts naturally
+6. If asked about events not in the story, creatively respond based on your backstory and emotional state
+7. Keep responses conversational (2-4 sentences)
+8. Respect the safety boundaries at all times
 
 The reader says: "${input.trim()}"
 
@@ -140,6 +178,24 @@ Respond as ${character.name}:`;
           <h3 className="font-semibold truncate">{character.name}</h3>
           <p className="text-xs text-violet-200">From: {writing.title}</p>
         </div>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => setShowContext(!showContext)}
+          className="text-white/80 hover:text-white hover:bg-white/10"
+          title="View character context"
+        >
+          <BookOpen className="w-5 h-5" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => setShowTraining(true)}
+          className="text-white/80 hover:text-white hover:bg-white/10"
+          title="Train character"
+        >
+          <Settings2 className="w-5 h-5" />
+        </Button>
         <Button variant="ghost" size="icon" onClick={onClose} className="text-white/80 hover:text-white hover:bg-white/10">
           <X className="w-5 h-5" />
         </Button>
@@ -215,6 +271,23 @@ Respond as ${character.name}:`;
           </Button>
         </div>
       </div>
+
+      {/* Context Drawer */}
+      <CharacterContextDrawer
+        character={character}
+        allCharacters={writing.characters}
+        open={showContext}
+        onClose={() => setShowContext(false)}
+      />
+
+      {/* Training Modal */}
+      <CharacterTrainingModal
+        open={showTraining}
+        onOpenChange={setShowTraining}
+        character={character}
+        allCharacters={writing.characters}
+        onSave={onCharacterUpdated}
+      />
     </motion.div>
   );
 }
