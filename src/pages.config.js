@@ -6,6 +6,7 @@ import ClubDetail from './pages/ClubDetail';
 import Discussion from './pages/Discussion';
 import Community from './pages/Community';
 import Challenges from './pages/Challenges';
+import WritingDetail from './pages/WritingDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -18,6 +19,7 @@ export const PAGES = {
     "Discussion": Discussion,
     "Community": Community,
     "Challenges": Challenges,
+    "WritingDetail": WritingDetail,
 }
 
 export const pagesConfig = {

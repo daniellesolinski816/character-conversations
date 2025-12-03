@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, BookOpen, Sparkles, Search } from 'lucide-react';
+import { Plus, BookOpen, Sparkles, Search, PenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import BookCard from '@/components/BookCard';
+import WritingCard from '@/components/WritingCard';
 import AddBookModal from '@/components/AddBookModal';
+import MyWritingModal from '@/components/MyWritingModal';
 
 export default function Home() {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showWritingModal, setShowWritingModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const { data: books = [], refetch: refetchBooks } = useQuery({
@@ -20,6 +23,11 @@ export default function Home() {
   const { data: progress = [] } = useQuery({
     queryKey: ['reading-progress'],
     queryFn: () => base44.entities.ReadingProgress.list(),
+  });
+
+  const { data: writings = [], refetch: refetchWritings } = useQuery({
+    queryKey: ['user-writings'],
+    queryFn: () => base44.entities.UserWriting.list('-created_date'),
   });
 
   const getProgressForBook = (bookId) => {
@@ -65,14 +73,22 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button 
-                onClick={() => setShowAddModal(true)}
-                className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-6 rounded-full text-base gap-2"
-              >
-                <Plus className="w-5 h-5" />
-                Add Your First Book
-              </Button>
-            </div>
+                <Button 
+                  onClick={() => setShowAddModal(true)}
+                  className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-6 rounded-full text-base gap-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  Add a Book
+                </Button>
+                <Button 
+                  onClick={() => setShowWritingModal(true)}
+                  variant="outline"
+                  className="px-6 py-6 rounded-full text-base gap-2 border-violet-300 text-violet-700 hover:bg-violet-50"
+                >
+                  <PenLine className="w-5 h-5" />
+                  Add Your Writing
+                </Button>
+              </div>
           </motion.div>
         </div>
       </div>
@@ -103,8 +119,39 @@ export default function Home() {
           </motion.section>
         )}
 
-        {/* All Books */}
-        <section>
+        {/* My Writings */}
+          {writings.length > 0 && (
+            <motion.section
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.25 }}
+              className="mb-16"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-3">
+                  <PenLine className="w-5 h-5 text-violet-600" />
+                  My Writings
+                </h2>
+                <Button 
+                  onClick={() => setShowWritingModal(true)}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full gap-2 border-violet-200 text-violet-700 hover:bg-violet-50"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Writing
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+                {writings.map((writing) => (
+                  <WritingCard key={writing.id} writing={writing} />
+                ))}
+              </div>
+            </motion.section>
+          )}
+
+          {/* All Books */}
+          <section>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <h2 className="text-xl font-semibold text-slate-900">
               {currentlyReading.length > 0 ? 'Your Library' : 'All Books'}
@@ -183,6 +230,12 @@ export default function Home() {
         onOpenChange={setShowAddModal}
         onBookAdded={() => refetchBooks()}
       />
-    </div>
-  );
-}
+
+      <MyWritingModal
+        open={showWritingModal}
+        onOpenChange={setShowWritingModal}
+        onWritingAdded={() => refetchWritings()}
+      />
+      </div>
+      );
+      }
