@@ -24,7 +24,7 @@ export default function MyWritingModal({ open, onOpenChange, onWritingAdded }) {
     setStep('extracting');
 
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `Analyze this creative writing and extract the main characters. For each character, provide their name, a brief description based on the text, and their personality traits.
+      prompt: `Analyze this creative writing and extract the main characters. For each character, provide detailed information.
 
 Title: ${title}
 Genre: ${genre}
@@ -32,7 +32,15 @@ Genre: ${genre}
 Content:
 ${content.slice(0, 8000)}
 
-Extract up to 5 main characters that appear in this writing.`,
+Extract up to 5 main characters. For each character provide:
+- name: their name
+- role: one of "protagonist", "antagonist", "supporting", "narrator", or "other"
+- short_description: 1-2 sentence hook about who they are
+- backstory: their background derived from the story
+- personality_traits: comma-separated list of traits (e.g. "brave, impulsive, loyal")
+- values_and_motivations: what they care about, what they fear, what drives them
+- empathy_focus: how chatting with this character could help the writer see different perspectives
+- safety_boundaries: "No NSFW content, no self-harm, no hate speech" (keep this standard)`,
       response_json_schema: {
         type: 'object',
         properties: {
@@ -42,8 +50,13 @@ Extract up to 5 main characters that appear in this writing.`,
               type: 'object',
               properties: {
                 name: { type: 'string' },
-                description: { type: 'string' },
-                personality: { type: 'string' }
+                role: { type: 'string', enum: ['protagonist', 'antagonist', 'supporting', 'narrator', 'other'] },
+                short_description: { type: 'string' },
+                backstory: { type: 'string' },
+                personality_traits: { type: 'string' },
+                values_and_motivations: { type: 'string' },
+                empathy_focus: { type: 'string' },
+                safety_boundaries: { type: 'string' }
               }
             }
           }
@@ -167,9 +180,14 @@ Extract up to 5 main characters that appear in this writing.`,
                 <div className="space-y-3">
                   {characters.map((char, idx) => (
                     <div key={idx} className="bg-white border border-slate-200 rounded-xl p-4">
-                      <p className="font-semibold text-slate-900">{char.name}</p>
-                      <p className="text-sm text-slate-600 mt-1">{char.description}</p>
-                      <p className="text-xs text-violet-600 mt-2">Personality: {char.personality}</p>
+                      <div className="flex items-center gap-2 mb-2">
+                        <p className="font-semibold text-slate-900">{char.name}</p>
+                        <span className="px-2 py-0.5 text-[10px] font-medium uppercase bg-violet-100 text-violet-700 rounded-full">
+                          {char.role}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-600">{char.short_description}</p>
+                      <p className="text-xs text-slate-500 mt-2">{char.personality_traits}</p>
                     </div>
                   ))}
                 </div>

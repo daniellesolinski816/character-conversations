@@ -42,8 +42,12 @@ export default function WritingCharacterChat({ writing, character, onClose }) {
 
 CHARACTER PROFILE:
 - Name: ${character.name}
-- Description: ${character.description}
-- Personality: ${character.personality}
+- Role: ${character.role || 'character'}
+- Description: ${character.short_description || character.description}
+- Backstory: ${character.backstory || 'As described in the story'}
+- Personality Traits: ${character.personality_traits || character.personality}
+- Values & Motivations: ${character.values_and_motivations || 'Driven by the events of the story'}
+- Empathy Focus: ${character.empathy_focus || 'Help the writer explore different perspectives'}
 
 THE STORY CONTEXT (written by the user):
 ${writing.content.slice(0, 6000)}
@@ -51,13 +55,16 @@ ${writing.content.slice(0, 6000)}
 RECENT CONVERSATION:
 ${conversationHistory || 'This is the start of your conversation.'}
 
+SAFETY BOUNDARIES: ${character.safety_boundaries || 'No NSFW content, no self-harm, no hate speech'}
+
 IMPORTANT INSTRUCTIONS:
 1. Stay completely in character as ${character.name}
 2. Reference events and details from the user's writing
-3. Use speech patterns and personality consistent with how you appear in the story
+3. Use speech patterns and personality consistent with your traits: ${character.personality_traits || character.personality}
 4. Be engaging and help the user explore their own creation
-5. If asked about events not in the story, creatively respond in character
+5. If asked about events not in the story, creatively respond in character based on your backstory and motivations
 6. Keep responses conversational (2-4 sentences)
+7. Respect the safety boundaries at all times
 
 The reader says: "${input.trim()}"
 

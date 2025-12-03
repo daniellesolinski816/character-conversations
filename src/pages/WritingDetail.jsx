@@ -135,12 +135,24 @@ export default function WritingDetail() {
                   <div className="flex items-start gap-4">
                     <CharacterAvatar name={character.name} size="lg" />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-slate-900 group-hover:text-violet-700 transition-colors">
-                        {character.name}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-slate-900 group-hover:text-violet-700 transition-colors">
+                          {character.name}
+                        </h3>
+                        {character.role && (
+                          <span className="px-2 py-0.5 text-[10px] font-medium uppercase bg-violet-100 text-violet-700 rounded-full">
+                            {character.role}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-slate-500 line-clamp-2 mt-1">
-                        {character.description}
+                        {character.short_description || character.description}
                       </p>
+                      {character.personality_traits && (
+                        <p className="text-xs text-slate-400 mt-1 line-clamp-1">
+                          {character.personality_traits}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2 mt-4 text-violet-600 text-sm font-medium">
