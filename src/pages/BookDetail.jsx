@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, BookOpen, Clock, Users, Play, Lightbulb, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CharacterAvatar from '@/components/CharacterAvatar';
+import DiscussionQuestions from '@/components/DiscussionQuestions';
 
 export default function BookDetail() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -232,30 +233,7 @@ export default function BookDetail() {
           transition={{ delay: 0.4 }}
           className="max-w-5xl mx-auto px-6 py-12"
         >
-          <h2 className="text-xl font-semibold text-slate-900 mb-6 flex items-center gap-3">
-            <Lightbulb className="w-5 h-5 text-amber-600" />
-            Discussion Questions
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {book.discussion_questions.slice(0, 6).map((question, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + idx * 0.1 }}
-                className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-100"
-              >
-                <p className="text-sm text-slate-700 leading-relaxed">{question}</p>
-              </motion.div>
-            ))}
-          </div>
-          
-          {book.discussion_questions.length > 6 && (
-            <p className="text-center text-sm text-slate-400 mt-4">
-              +{book.discussion_questions.length - 6} more questions available while reading
-            </p>
-          )}
+          <DiscussionQuestions discussion={book.discussion_questions} />
         </motion.section>
       )}
 
