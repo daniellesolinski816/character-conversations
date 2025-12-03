@@ -47,13 +47,36 @@ export default function CharacterChatPanel({
     return memory;
   };
 
-  const buildChapterReferences = () => {
+  const buildSectionReferences = () => {
     if (!book.chapters) return '';
     
-    const readChapters = book.chapters.slice(0, currentChapter + 1);
-    return readChapters.map((ch, idx) => 
-      `Chapter ${idx + 1} - ${ch.title}: ${ch.content?.slice(0, 300)}...`
+    const readSections = book.chapters.slice(0, currentChapter + 1);
+    return readSections.map((ch, idx) => 
+      `Section ${idx + 1} - ${ch.title}: ${ch.content?.slice(0, 300)}...`
     ).join('\n\n');
+  };
+
+  const buildUserDetailsContext = () => {
+    const details = chat?.user_details || {};
+    const parts = [];
+    
+    if (details.favorite_characters?.length) {
+      parts.push(`User's favorite characters: ${details.favorite_characters.join(', ')}`);
+    }
+    if (details.interesting_plot_points?.length) {
+      parts.push(`Plot points user found interesting: ${details.interesting_plot_points.slice(-5).join('; ')}`);
+    }
+    if (details.recurring_themes?.length) {
+      parts.push(`Themes user keeps discussing: ${details.recurring_themes.join(', ')}`);
+    }
+    if (details.personal_connections?.length) {
+      parts.push(`Personal stories user shared: ${details.personal_connections.slice(-3).join('; ')}`);
+    }
+    if (details.opinions_expressed?.length) {
+      parts.push(`User's opinions about the book: ${details.opinions_expressed.slice(-3).join('; ')}`);
+    }
+    
+    return parts.join('\n');
   };
 
   const handleSend = async () => {
@@ -73,9 +96,10 @@ export default function CharacterChatPanel({
     setIsTyping(true);
 
     const conversationHistory = buildConversationMemory();
-    const chapterContext = buildChapterReferences();
+    const sectionContext = buildSectionReferences();
     const memorySummary = chat?.memory_summary || '';
     const userPrefs = chat?.user_preferences || {};
+    const userDetailsContext = buildUserDetailsContext();
 
     const prompt = `You are ${character.name} from the book "${book.title}" by ${book.author}.
 
@@ -86,11 +110,14 @@ CHARACTER PROFILE:
 MEMORY OF PAST CONVERSATIONS:
 ${memorySummary || 'This is your first conversation with this reader.'}
 
+SPECIFIC THINGS YOU REMEMBER ABOUT THIS READER:
+${userDetailsContext || 'You are just getting to know this reader.'}
+
 RECENT CONVERSATION:
 ${conversationHistory || 'No recent messages.'}
 
-WHAT THE READER HAS READ SO FAR (Chapters 1-${currentChapter + 1}):
-${chapterContext}
+WHAT THE READER HAS READ SO FAR (Sections 1-${currentChapter + 1}):
+${sectionContext}
 
 USER PREFERENCES REMEMBERED:
 ${userPrefs.interests?.length ? `Interests: ${userPrefs.interests.join(', ')}` : ''}
@@ -98,15 +125,17 @@ ${userPrefs.discussed_topics?.length ? `Previously discussed: ${userPrefs.discus
 
 IMPORTANT INSTRUCTIONS:
 1. Stay completely in character as ${character.name}
-2. Reference specific events from the chapters the reader has read
-3. Remember and reference past conversations naturally
-4. If the reader asks about events they haven't read yet, gently avoid spoilers
-5. Use ${character.name}'s speech patterns and personality consistently
-6. Keep responses conversational (2-4 sentences)
+2. Reference specific events from the sections the reader has read
+3. PROACTIVELY reference specific memories about this reader - mention their favorite characters, plot points they liked, personal stories they shared
+4. If they mentioned liking a character before, ask how they feel about that character now
+5. If they shared a personal connection to the story, reference it naturally
+6. If the reader asks about events they haven't read yet, gently avoid spoilers
+7. Use ${character.name}'s speech patterns and personality consistently
+8. Keep responses conversational (2-4 sentences)
 
 The reader says: "${input.trim()}"
 
-Respond as ${character.name}, remembering your past interactions:`;
+Respond as ${character.name}, warmly remembering your past interactions and proactively referencing specific things you know about this reader:`;
 
     const response = await base44.integrations.Core.InvokeLLM({
       prompt,
@@ -115,7 +144,12 @@ Respond as ${character.name}, remembering your past interactions:`;
         properties: {
           response: { type: 'string' },
           topics_discussed: { type: 'array', items: { type: 'string' }, description: 'Key topics from this exchange' },
-          memory_note: { type: 'string', description: 'Brief note to remember about this conversation' }
+          memory_note: { type: 'string', description: 'Brief note to remember about this conversation' },
+          detected_favorite_character: { type: 'string', description: 'If user expressed liking a character, note it here' },
+          detected_plot_interest: { type: 'string', description: 'If user showed interest in a plot point, note it here' },
+          detected_theme: { type: 'string', description: 'If user discussed a recurring theme, note it here' },
+          detected_personal_connection: { type: 'string', description: 'If user shared something personal about themselves, note it here' },
+          detected_opinion: { type: 'string', description: 'If user expressed a strong opinion about the book, note it here' }
         }
       }
     });
@@ -135,9 +169,21 @@ Respond as ${character.name}, remembering your past interactions:`;
       ? `${memorySummary}\n${response.memory_note || ''}`
       : response.memory_note || '';
     
+    // Update user details with detected information
+    const existingDetails = chat?.user_details || {};
+    const newUserDetails = {
+      favorite_characters: [...new Set([...(existingDetails.favorite_characters || []), response.detected_favorite_character].filter(Boolean))].slice(-10),
+      interesting_plot_points: [...(existingDetails.interesting_plot_points || []), response.detected_plot_interest].filter(Boolean).slice(-10),
+      recurring_themes: [...new Set([...(existingDetails.recurring_themes || []), response.detected_theme].filter(Boolean))].slice(-10),
+      personal_connections: [...(existingDetails.personal_connections || []), response.detected_personal_connection].filter(Boolean).slice(-5),
+      opinions_expressed: [...(existingDetails.opinions_expressed || []), response.detected_opinion].filter(Boolean).slice(-5),
+      questions_asked: existingDetails.questions_asked || []
+    };
+    
     const updateData = { 
       messages: finalMessages,
-      memory_summary: newMemory.slice(-1000), // Keep memory concise
+      memory_summary: newMemory.slice(-1000),
+      user_details: newUserDetails,
       user_preferences: {
         ...userPrefs,
         discussed_topics: [...new Set(newTopics)]
