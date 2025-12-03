@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, PenLine, MessageCircle, Users, Trash2, Lightbulb } from 'lucide-react';
+import { ArrowLeft, PenLine, MessageCircle, Users, Trash2, Lightbulb, TrendingUp, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import ReactMarkdown from 'react-markdown';
 import CharacterAvatar from '@/components/CharacterAvatar';
 import WritingCharacterChat from '@/components/WritingCharacterChat';
 import DiscussionQuestions from '@/components/DiscussionQuestions';
+import CharacterDetailModal from '@/components/CharacterDetailModal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +29,8 @@ export default function WritingDetail() {
   const writingId = urlParams.get('id');
 
   const [selectedCharacter, setSelectedCharacter] = useState(null);
+  const [detailCharacter, setDetailCharacter] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: writing, isLoading } = useQuery({
     queryKey: ['user-writing', writingId],
@@ -37,6 +41,14 @@ export default function WritingDetail() {
   const handleDelete = async () => {
     await base44.entities.UserWriting.delete(writingId);
     window.location.href = createPageUrl('Home');
+  };
+
+  const handleCharacterUpdated = async (updatedChar) => {
+    const updatedCharacters = writing.characters.map(c => 
+      c.name === updatedChar.name ? updatedChar : c
+    );
+    await base44.entities.UserWriting.update(writingId, { characters: updatedCharacters });
+    queryClient.invalidateQueries(['user-writing', writingId]);
   };
 
   if (isLoading) {
@@ -126,19 +138,18 @@ export default function WritingDetail() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {writing.characters.map((character, idx) => (
-                <motion.button
+                <motion.div
                   key={idx}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.1 }}
-                  onClick={() => setSelectedCharacter(character)}
-                  className="bg-white rounded-2xl p-5 border border-slate-100 hover:border-violet-300 hover:shadow-lg transition-all text-left group"
+                  className="bg-white rounded-2xl p-5 border border-slate-100 hover:shadow-lg transition-all"
                 >
                   <div className="flex items-start gap-4">
                     <CharacterAvatar name={character.name} size="lg" />
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-slate-900 group-hover:text-violet-700 transition-colors">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold text-slate-900">
                           {character.name}
                         </h3>
                         {character.role && (
@@ -150,18 +161,45 @@ export default function WritingDetail() {
                       <p className="text-sm text-slate-500 line-clamp-2 mt-1">
                         {character.short_description || character.description}
                       </p>
-                      {character.personality_traits && (
-                        <p className="text-xs text-slate-400 mt-1 line-clamp-1">
-                          {character.personality_traits}
-                        </p>
-                      )}
+                      
+                      {/* Arc & Events indicators */}
+                      <div className="flex items-center gap-2 mt-2">
+                        {character.emotional_arc && (
+                          <Badge variant="outline" className="text-xs gap-1 bg-green-50 text-green-700 border-green-200">
+                            <TrendingUp className="w-3 h-3" />
+                            Arc
+                          </Badge>
+                        )}
+                        {character.canon_events?.length > 0 && (
+                          <Badge variant="outline" className="text-xs gap-1 bg-amber-50 text-amber-700 border-amber-200">
+                            <Calendar className="w-3 h-3" />
+                            {character.canon_events.length} events
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-4 text-violet-600 text-sm font-medium">
-                    <MessageCircle className="w-4 h-4" />
-                    Start Conversation
+                  
+                  <div className="flex items-center gap-2 mt-4">
+                    <Button 
+                      onClick={() => setSelectedCharacter(character)}
+                      size="sm"
+                      className="flex-1 bg-violet-600 hover:bg-violet-700"
+                    >
+                      <MessageCircle className="w-4 h-4 mr-1" />
+                      Chat
+                    </Button>
+                    <Button 
+                      onClick={() => setDetailCharacter(character)}
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <TrendingUp className="w-4 h-4 mr-1" />
+                      Arc & Events
+                    </Button>
                   </div>
-                </motion.button>
+                </motion.div>
               ))}
             </div>
           </motion.section>
@@ -209,6 +247,16 @@ export default function WritingDetail() {
           />
         )}
       </AnimatePresence>
+
+      {/* Character Detail Modal */}
+      <CharacterDetailModal
+        open={!!detailCharacter}
+        onOpenChange={(open) => !open && setDetailCharacter(null)}
+        character={detailCharacter}
+        writingId={writingId}
+        writingContent={writing?.content}
+        onCharacterUpdated={handleCharacterUpdated}
+      />
     </div>
   );
 }
