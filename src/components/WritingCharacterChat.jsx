@@ -7,6 +7,41 @@ import { motion } from 'framer-motion';
 import CharacterAvatar from './CharacterAvatar';
 import ChatBubble from './ChatBubble';
 
+const getSuggestedPrompts = (character) => {
+  const role = character.role || 'other';
+  const name = character.name;
+  
+  const rolePrompts = {
+    protagonist: [
+      `What's the hardest decision you've had to make?`,
+      `What do you fear most about your journey?`,
+      `If you could change one thing about your past, what would it be?`,
+    ],
+    antagonist: [
+      `Do you see yourself as the villain?`,
+      `What made you become who you are today?`,
+      `Is there anything that could change your mind?`,
+    ],
+    supporting: [
+      `What do you really think about the main character?`,
+      `What's your own story that nobody knows?`,
+      `What would you do differently if you were in charge?`,
+    ],
+    narrator: [
+      `Why did you choose to tell this story?`,
+      `What do you think readers should take away from this?`,
+      `What parts of the story do you find most compelling?`,
+    ],
+    other: [
+      `Tell me about yourself - who are you really?`,
+      `What motivates you in this story?`,
+      `How do you feel about everything that's happened?`,
+    ],
+  };
+
+  return rolePrompts[role] || rolePrompts.other;
+};
+
 export default function WritingCharacterChat({ writing, character, onClose }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -113,14 +148,27 @@ Respond as ${character.name}:`;
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-5 space-y-4">
         {messages.length === 0 && (
-          <div className="text-center py-12">
+          <div className="text-center py-8">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center">
               <Sparkles className="w-8 h-8 text-violet-500" />
             </div>
             <h4 className="font-medium text-slate-900 mb-1">Chat with {character.name}</h4>
-            <p className="text-sm text-slate-500 max-w-[250px] mx-auto">
+            <p className="text-sm text-slate-500 max-w-[250px] mx-auto mb-4">
               This character is from your own writing! Ask them anything about their story.
             </p>
+            
+            <div className="text-left space-y-2 max-w-[300px] mx-auto">
+              <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Try asking:</p>
+              {getSuggestedPrompts(character).map((prompt, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setInput(prompt)}
+                  className="block w-full text-left text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 hover:border-violet-300 hover:bg-violet-50 transition-colors"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
