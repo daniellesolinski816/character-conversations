@@ -4,15 +4,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, BookOpen, Clock, Users, Play, Lightbulb, MessageCircle } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, Users, Play, Lightbulb, MessageCircle, GitBranch } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CharacterAvatar from '@/components/CharacterAvatar';
 import DiscussionQuestions from '@/components/DiscussionQuestions';
+import CharacterRelationshipMap from '@/components/CharacterRelationshipMap';
 
 export default function BookDetail() {
   const urlParams = new URLSearchParams(window.location.search);
   const bookId = urlParams.get('id');
   const queryClient = useQueryClient();
+  const [showRelationshipMap, setShowRelationshipMap] = useState(false);
 
   const { data: book, isLoading } = useQuery({
     queryKey: ['book', bookId],
@@ -181,10 +183,23 @@ export default function BookDetail() {
           transition={{ delay: 0.3 }}
           className="max-w-5xl mx-auto px-6 py-12"
         >
-          <h2 className="text-xl font-semibold text-slate-900 mb-6 flex items-center gap-3">
-            <Users className="w-5 h-5 text-amber-600" />
-            Characters You Can Chat With
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-3">
+              <Users className="w-5 h-5 text-amber-600" />
+              Characters You Can Chat With
+            </h2>
+            {book.characters.some(c => c.relationships?.length > 0) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowRelationshipMap(true)}
+                className="gap-2 rounded-full border-violet-200 text-violet-700 hover:bg-violet-50"
+              >
+                <GitBranch className="w-4 h-4" />
+                Relationship Map
+              </Button>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {book.characters.map((char, idx) => (
@@ -284,6 +299,13 @@ export default function BookDetail() {
           </div>
         </motion.section>
       )}
+
+      {/* Character Relationship Map Modal */}
+      <CharacterRelationshipMap
+        open={showRelationshipMap}
+        onOpenChange={setShowRelationshipMap}
+        characters={book.characters || []}
+      />
     </div>
   );
 }
