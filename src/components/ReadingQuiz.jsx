@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Trophy, Loader2, CheckCircle, XCircle, Sparkles, RotateCcw } from 'lucide-react';
+import { Trophy, Loader2, CheckCircle, XCircle, Sparkles, RotateCcw, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+
+const SKILL_LEVELS = [
+  { id: 'beginner', name: 'Beginner', description: 'Basic plot & character recall', icon: '🌱', questionCount: 4 },
+  { id: 'intermediate', name: 'Intermediate', description: 'Themes, motivations & connections', icon: '📚', questionCount: 5 },
+  { id: 'advanced', name: 'Advanced', description: 'Deep analysis & literary interpretation', icon: '🎓', questionCount: 6 },
+];
 
 export default function ReadingQuiz({ 
   open, 
@@ -19,8 +25,10 @@ export default function ReadingQuiz({
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [answers, setAnswers] = useState([]);
+  const [skillLevel, setSkillLevel] = useState(null);
+  const [showLevelSelect, setShowLevelSelect] = useState(true);
 
-  const generateQuiz = async () => {
+  const generateQuiz = async (level) => {
     setLoading(true);
     setQuiz(null);
     setCurrentQuestion(0);
@@ -29,23 +37,45 @@ export default function ReadingQuiz({
     setSelectedAnswer(null);
     setShowResult(false);
 
-    const chaptersRead = book.chapters?.slice(0, currentChapter + 1) || [];
-    const context = chaptersRead.map(c => `${c.title}: ${c.content?.slice(0, 500)}`).join('\n\n');
+    const sectionsRead = book.chapters?.slice(0, currentChapter + 1) || [];
+    const context = sectionsRead.map(c => `${c.title}: ${c.content?.slice(0, 500)}`).join('\n\n');
+
+    const levelConfig = SKILL_LEVELS.find(l => l.id === level);
+    const questionCount = levelConfig?.questionCount || 5;
+
+    const levelPrompts = {
+      beginner: `Create ${questionCount} BEGINNER-level multiple choice questions that test:
+- Basic plot recall (what happened)
+- Character names and roles
+- Simple sequence of events
+- Straightforward facts from the story
+Questions should be direct and have clear answers from the text.`,
+      intermediate: `Create ${questionCount} INTERMEDIATE-level multiple choice questions that test:
+- Character motivations and relationships
+- Cause and effect in the plot
+- Basic themes and their expressions
+- Connections between events
+- Understanding of setting and context
+Questions should require some inference but be grounded in the text.`,
+      advanced: `Create ${questionCount} ADVANCED-level multiple choice questions that test:
+- Deep thematic analysis
+- Literary devices and symbolism
+- Character psychology and development
+- Author's intent and writing choices
+- Connections to broader literary or historical context
+- Complex interpretation questions
+Questions should challenge critical thinking and literary analysis skills.`
+    };
 
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `Create a reading comprehension quiz for "${book.title}" by ${book.author}.
+      prompt: `Create a ${level}-level reading comprehension quiz for "${book.title}" by ${book.author}.
 
-The reader has read up to chapter ${currentChapter + 1}. Here's what they've read:
+The reader has read up to section ${currentChapter + 1}. Here's what they've read:
 ${context}
 
-Create 5 multiple choice questions that test:
-- Plot comprehension
-- Character understanding
-- Themes and symbolism
-- Key events
-- Vocabulary in context
+${levelPrompts[level]}
 
-Make questions progressively harder. Each question should have 4 options with only one correct answer.`,
+Each question should have 4 options with only one correct answer. Include an explanation for each answer.`,
       response_json_schema: {
         type: 'object',
         properties: {
@@ -69,9 +99,24 @@ Make questions progressively harder. Each question should have 4 options with on
     setLoading(false);
   };
 
+  const handleSelectLevel = (level) => {
+    setSkillLevel(level);
+    setShowLevelSelect(false);
+    generateQuiz(level);
+  };
+
+  const resetQuiz = () => {
+    setShowLevelSelect(true);
+    setQuiz(null);
+    setSkillLevel(null);
+    setShowResult(false);
+  };
+
   React.useEffect(() => {
-    if (open && !quiz && !loading) {
-      generateQuiz();
+    if (open) {
+      setShowLevelSelect(true);
+      setQuiz(null);
+      setSkillLevel(null);
     }
   }, [open]);
 
@@ -105,10 +150,36 @@ Make questions progressively harder. Each question should have 4 options with on
           </DialogTitle>
         </DialogHeader>
 
-        {loading ? (
+        {showLevelSelect ? (
+          <div className="py-4">
+            <div className="text-center mb-6">
+              <GraduationCap className="w-12 h-12 text-amber-500 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-slate-900">Choose Your Challenge Level</h3>
+              <p className="text-sm text-slate-500 mt-1">Select a difficulty that matches your reading depth</p>
+            </div>
+            <div className="space-y-3">
+              {SKILL_LEVELS.map((level) => (
+                <button
+                  key={level.id}
+                  onClick={() => handleSelectLevel(level.id)}
+                  className="w-full p-4 rounded-xl border-2 border-slate-200 hover:border-amber-400 hover:bg-amber-50 transition-all text-left flex items-center gap-4"
+                >
+                  <span className="text-3xl">{level.icon}</span>
+                  <div className="flex-1">
+                    <p className="font-semibold text-slate-900">{level.name}</p>
+                    <p className="text-sm text-slate-500">{level.description}</p>
+                  </div>
+                  <span className="text-xs bg-slate-100 px-2 py-1 rounded-full text-slate-600">
+                    {level.questionCount} questions
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : loading ? (
           <div className="flex flex-col items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-amber-500 mb-4" />
-            <p className="text-slate-500">Generating your quiz...</p>
+            <p className="text-slate-500">Generating your {skillLevel} quiz...</p>
           </div>
         ) : showResult ? (
           <motion.div
@@ -138,9 +209,12 @@ Make questions progressively harder. Each question should have 4 options with on
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Close
               </Button>
-              <Button onClick={generateQuiz} className="bg-amber-600 hover:bg-amber-700">
+              <Button variant="outline" onClick={resetQuiz}>
+                Change Level
+              </Button>
+              <Button onClick={() => generateQuiz(skillLevel)} className="bg-amber-600 hover:bg-amber-700">
                 <RotateCcw className="w-4 h-4 mr-2" />
-                New Quiz
+                Retry
               </Button>
             </div>
           </motion.div>
