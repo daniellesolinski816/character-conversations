@@ -59,20 +59,25 @@ export default function ReaderView({
     theme: readingSettings?.theme || 'light',
   };
 
-  const handleTextSelection = useCallback((e) => {
-    // Ignore selections on buttons or interactive elements
-    if (e.target.closest('button') || e.target.closest('a') || e.target.closest('[role="dialog"]')) {
-      return;
-    }
-    
+  const handleTextSelection = useCallback(() => {
     // Small delay to ensure selection is complete
     setTimeout(() => {
       const selection = window.getSelection();
       const text = selection?.toString().trim();
+      
+      // Only trigger if we have selected text within the article content area
       if (text && text.length > 0 && text.length < 50) {
-        setSelectedText(text);
+        // Check if selection is within the reader content
+        const anchorNode = selection.anchorNode;
+        if (anchorNode) {
+          const parentElement = anchorNode.parentElement;
+          const isInArticle = parentElement?.closest('article');
+          if (isInArticle) {
+            setSelectedText(text);
+          }
+        }
       }
-    }, 10);
+    }, 50);
   }, []);
 
   useEffect(() => {
