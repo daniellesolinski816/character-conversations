@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, BookOpen, Sparkles, Search, PenLine } from 'lucide-react';
+import { Plus, BookOpen, Sparkles, Search, PenLine, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import BookCard from '@/components/BookCard';
