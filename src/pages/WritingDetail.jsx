@@ -4,10 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, PenLine, MessageCircle, Users, Trash2 } from 'lucide-react';
+import { ArrowLeft, PenLine, MessageCircle, Users, Trash2, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import ReactMarkdown from 'react-markdown';
 import CharacterAvatar from '@/components/CharacterAvatar';
 import WritingCharacterChat from '@/components/WritingCharacterChat';
+import DiscussionQuestions from '@/components/DiscussionQuestions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -176,11 +178,25 @@ export default function WritingDetail() {
             Your Writing
           </h2>
           <div className="bg-white rounded-2xl border border-slate-100 p-6 md:p-8">
-            <div className="prose prose-slate max-w-none whitespace-pre-wrap">
-              {writing.content}
+            <div className="prose prose-slate max-w-none">
+              <ReactMarkdown>
+                {writing.content}
+              </ReactMarkdown>
             </div>
           </div>
         </motion.section>
+
+        {/* Discussion Questions */}
+        {writing.discussion_questions && writing.discussion_questions.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mt-10"
+          >
+            <DiscussionQuestions discussion={writing.discussion_questions} />
+          </motion.section>
+        )}
       </div>
 
       {/* Character Chat Panel */}
