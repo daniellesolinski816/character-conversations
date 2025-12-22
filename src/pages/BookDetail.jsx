@@ -117,13 +117,29 @@ export default function BookDetail() {
               animate={{ opacity: 1, scale: 1 }}
               className="shrink-0 mx-auto md:mx-0"
             >
-              <div className="w-48 md:w-56 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl shadow-slate-900/20">
+              <div className="w-48 md:w-56 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl shadow-slate-900/20 relative">
                 {book.cover_image ? (
-                  <img 
-                    src={book.cover_image} 
-                    alt={book.title}
-                    className="w-full h-full object-cover"
-                  />
+                  <>
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        backgroundImage: `url(${book.cover_image})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/10 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-4">
+                      <div className="text-white">
+                        <div className="text-sm md:text-base font-semibold leading-tight line-clamp-2 drop-shadow">
+                          {book.title}
+                        </div>
+                        <div className="text-xs md:text-sm opacity-90 mt-1 drop-shadow line-clamp-1">
+                          {book.author ? `by ${book.author}` : ''}
+                        </div>
+                      </div>
+                    </div>
+                  </>
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
                     <BookOpen className="w-16 h-16 text-slate-300" />
