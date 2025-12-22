@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Send, Sparkles, Loader2, Share2, Brain, Lock, BookOpen, Settings2, Heart } from 'lucide-react';
+import { X, Send, Sparkles, Loader2, Share2, Brain, Lock, BookOpen, Settings2, Heart, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { motion, AnimatePresence } from 'framer-motion';
 import CharacterAvatar from './CharacterAvatar';
 import ChatBubble from './ChatBubble';
@@ -25,6 +26,8 @@ export default function CharacterChatPanel({
   const [isShared, setIsShared] = useState(chat?.is_shared || false);
   const [showContext, setShowContext] = useState(false);
   const [showTraining, setShowTraining] = useState(false);
+  const [numHumans, setNumHumans] = useState(1);
+  const [showSettings, setShowSettings] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -329,7 +332,7 @@ ${character.personality_quirks.map(q => `- ${q}`).join('\n')}` : '';
         </Button>
       </div>
 
-      {/* Sharing Toggle */}
+      {/* Settings & Sharing Toggle */}
       {chat?.id && (
         <div className="bg-amber-50 px-5 py-2 flex items-center justify-between border-b border-amber-100">
           <div className="flex items-center gap-2 text-sm">
@@ -338,9 +341,52 @@ ${character.personality_quirks.map(q => `- ${q}`).join('\n')}` : '';
               {isShared ? "Shareable in clubs" : "Private chat"}
             </span>
           </div>
-          <Switch checked={isShared} onCheckedChange={toggleSharing} />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSettings(!showSettings)}
+              className="h-7 text-xs"
+            >
+              <User className="w-3 h-3 mr-1" />
+              {numHumans} {numHumans === 1 ? 'person' : 'people'}
+            </Button>
+            <Switch checked={isShared} onCheckedChange={toggleSharing} />
+          </div>
         </div>
       )}
+      
+      {/* Settings Panel */}
+      <AnimatePresence>
+        {showSettings && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-white border-b border-slate-200 overflow-hidden"
+          >
+            <div className="p-4">
+              <Label className="text-sm font-semibold">Human Participants</Label>
+              <p className="text-xs text-slate-500 mt-1 mb-3">Multiple people can join this conversation</p>
+              <div className="grid grid-cols-4 gap-2">
+                {[1, 2, 3, 4].map(num => (
+                  <button
+                    key={num}
+                    onClick={() => setNumHumans(num)}
+                    className={`py-2 px-3 rounded-lg border-2 font-medium transition-all text-sm ${
+                      numHumans === num
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-slate-200 hover:border-blue-300 text-slate-600'
+                    }`}
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-5 space-y-4">
