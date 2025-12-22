@@ -6,12 +6,14 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { 
   MessageSquare, Users, BookOpen, Trophy, Sparkles, 
-  TrendingUp, Calendar, Award, Star, Clock
+  TrendingUp, Calendar, Award, Star, Clock, Compass, Heart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { format, isToday, isYesterday } from 'date-fns';
 import CharacterAvatar from '@/components/CharacterAvatar';
+import DiscoverBooks from '@/components/community/DiscoverBooks';
+import ReadingBuddies from '@/components/community/ReadingBuddies';
 
 const eventIcons = {
   new_discussion: MessageSquare,
@@ -77,10 +79,18 @@ export default function Community() {
           {/* Main Feed */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="feed">
-              <TabsList className="mb-6">
+              <TabsList className="mb-6 grid grid-cols-2 md:grid-cols-5 w-full">
                 <TabsTrigger value="feed" className="gap-2">
                   <TrendingUp className="w-4 h-4" />
-                  Activity Feed
+                  Activity
+                </TabsTrigger>
+                <TabsTrigger value="discover" className="gap-2">
+                  <Compass className="w-4 h-4" />
+                  Discover
+                </TabsTrigger>
+                <TabsTrigger value="buddies" className="gap-2">
+                  <Heart className="w-4 h-4" />
+                  Buddies
                 </TabsTrigger>
                 <TabsTrigger value="discussions" className="gap-2">
                   <MessageSquare className="w-4 h-4" />
@@ -88,7 +98,7 @@ export default function Community() {
                 </TabsTrigger>
                 <TabsTrigger value="chats" className="gap-2">
                   <Sparkles className="w-4 h-4" />
-                  Shared Chats
+                  Chats
                 </TabsTrigger>
               </TabsList>
 
@@ -133,6 +143,14 @@ export default function Community() {
                     <p className="text-slate-500">Start reading and chatting to create activity!</p>
                   </div>
                 )}
+              </TabsContent>
+
+              <TabsContent value="discover">
+                <DiscoverBooks />
+              </TabsContent>
+
+              <TabsContent value="buddies">
+                <ReadingBuddies />
               </TabsContent>
 
               <TabsContent value="discussions">
