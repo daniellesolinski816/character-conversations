@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Brain, Heart, BookOpen, Zap, ArrowLeft } from 'lucide-react';
+import { Brain, Heart, BookOpen, Zap, ArrowLeft, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function EmpathyScience() {
@@ -114,10 +114,36 @@ export default function EmpathyScience() {
 
             <section>
               <h3 className="text-lg font-semibold text-slate-900">Further Reading</h3>
-              <div className="space-y-2 text-sm text-slate-600">
-                <p>• Kidd, D. C., & Castano, E. (2013). Reading literary fiction improves theory of mind. <em>Science, 342</em>(6156), 377-380.</p>
-                <p>• Mar, R. A., Oatley, K., Hirsh, J., dela Paz, J., & Peterson, J. B. (2006). Bookworms versus nerds: Exposure to fiction versus non-fiction, divergent associations with social ability, and the simulation of fictional social worlds. <em>Journal of Research in Personality, 40</em>(5), 694-712.</p>
-                <p>• Bal, P. M., & Veltkamp, M. (2013). How does fiction reading influence empathy? An experimental investigation on the role of emotional transportation. <em>PLOS ONE, 8</em>(1), e55341.</p>
+              <div className="space-y-3 text-sm text-slate-600">
+                <a 
+                  href="https://www.science.org/doi/10.1126/science.1239918" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-2 p-3 rounded-lg hover:bg-slate-50 transition-colors group"
+                >
+                  <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-violet-600 mt-0.5 shrink-0" />
+                  <span>Kidd, D. C., & Castano, E. (2013). Reading literary fiction improves theory of mind. <em>Science, 342</em>(6156), 377-380.</span>
+                </a>
+                
+                <a 
+                  href="https://www.sciencedirect.com/science/article/abs/pii/S0092656606000225" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-2 p-3 rounded-lg hover:bg-slate-50 transition-colors group"
+                >
+                  <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-violet-600 mt-0.5 shrink-0" />
+                  <span>Mar, R. A., Oatley, K., Hirsh, J., dela Paz, J., & Peterson, J. B. (2006). Bookworms versus nerds: Exposure to fiction versus non-fiction, divergent associations with social ability, and the simulation of fictional social worlds. <em>Journal of Research in Personality, 40</em>(5), 694-712.</span>
+                </a>
+                
+                <a 
+                  href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0055341" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-2 p-3 rounded-lg hover:bg-slate-50 transition-colors group"
+                >
+                  <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-violet-600 mt-0.5 shrink-0" />
+                  <span>Bal, P. M., & Veltkamp, M. (2013). How does fiction reading influence empathy? An experimental investigation on the role of emotional transportation. <em>PLOS ONE, 8</em>(1), e55341.</span>
+                </a>
               </div>
             </section>
           </div>
