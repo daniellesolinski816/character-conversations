@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, PenLine, MessageCircle, Users, Trash2, Lightbulb, TrendingUp, Calendar } from 'lucide-react';
+import { ArrowLeft, PenLine, MessageCircle, Users, Trash2, Lightbulb, TrendingUp, Calendar, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import ReactMarkdown from 'react-markdown';
@@ -12,6 +12,7 @@ import CharacterAvatar from '@/components/CharacterAvatar';
 import WritingCharacterChat from '@/components/WritingCharacterChat';
 import DiscussionQuestions from '@/components/DiscussionQuestions';
 import CharacterDetailModal from '@/components/CharacterDetailModal';
+import CharacterTrainingModal from '@/components/CharacterTrainingModal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,7 @@ export default function WritingDetail() {
 
   const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [detailCharacter, setDetailCharacter] = useState(null);
+  const [trainingCharacter, setTrainingCharacter] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: writing, isLoading } = useQuery({
@@ -180,24 +182,35 @@ export default function WritingDetail() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 mt-4">
+                  <div className="space-y-2 mt-4">
                     <Button 
                       onClick={() => setSelectedCharacter(character)}
                       size="sm"
-                      className="flex-1 bg-violet-600 hover:bg-violet-700"
+                      className="w-full bg-violet-600 hover:bg-violet-700"
                     >
                       <MessageCircle className="w-4 h-4 mr-1" />
                       Chat
                     </Button>
-                    <Button 
-                      onClick={() => setDetailCharacter(character)}
-                      size="sm"
-                      variant="outline"
-                      className="flex-1"
-                    >
-                      <TrendingUp className="w-4 h-4 mr-1" />
-                      Arc & Events
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={() => setDetailCharacter(character)}
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        <TrendingUp className="w-4 h-4 mr-1" />
+                        Arc & Events
+                      </Button>
+                      <Button 
+                        onClick={() => setTrainingCharacter(character)}
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        <Settings2 className="w-4 h-4 mr-1" />
+                        Customize
+                      </Button>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -249,15 +262,25 @@ export default function WritingDetail() {
         )}
       </AnimatePresence>
 
-      {/* Character Detail Modal */}
+      {/* Character Detail Modal (Emotional Arc & Canon Events) */}
       <CharacterDetailModal
         open={!!detailCharacter}
         onOpenChange={(open) => !open && setDetailCharacter(null)}
         character={detailCharacter}
-        writingId={writingId}
-        writingContent={writing?.content}
-        onCharacterUpdated={handleCharacterUpdated}
+        allCharacters={writing?.characters || []}
+        onSave={handleCharacterUpdated}
       />
+
+      {/* Character Training Modal (Personality Quirks & Relationships) */}
+      {trainingCharacter && (
+        <CharacterTrainingModal
+          open={!!trainingCharacter}
+          onOpenChange={(open) => !open && setTrainingCharacter(null)}
+          character={trainingCharacter}
+          allCharacters={writing?.characters || []}
+          onSave={handleCharacterUpdated}
+        />
+      )}
     </div>
   );
 }
