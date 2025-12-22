@@ -4,12 +4,15 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles, Loader2, BookOpen, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, BookOpen, MessageSquare, Brain, User, Send, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CharacterAvatar from '@/components/CharacterAvatar';
 
 const SYSTEM_PROMPT = `You are facilitating a conversation between two characters from DIFFERENT books/stories.
@@ -64,42 +67,98 @@ function CharacterBadge({ character, bookTitle, onClick, isSelected }) {
   );
 }
 
-function DialogueView({ turns, char1, char2 }) {
+function DialogueView({ turns, char1, char2, empathyInsights }) {
   return (
-    <ScrollArea className="h-[400px] pr-4">
-      <div className="space-y-4">
-        {turns.map((turn, idx) => {
-          const isChar1 = turn.speaker.toLowerCase().includes(char1.name.toLowerCase());
-          const character = isChar1 ? char1 : char2;
-          
-          return (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, x: isChar1 ? -20 : 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className={`flex gap-3 ${isChar1 ? '' : 'flex-row-reverse'}`}
-            >
-              <CharacterAvatar 
-                name={character.name} 
-                avatar={character.avatar}
-                size="sm"
-              />
-              <div className={`flex-1 ${isChar1 ? 'text-left' : 'text-right'}`}>
-                <p className="text-xs font-medium text-slate-500 mb-1">{turn.speaker}</p>
-                <div className={`inline-block p-3 rounded-2xl ${
-                  isChar1 
-                    ? 'bg-white border border-slate-200' 
-                    : 'bg-violet-100 border border-violet-200'
-                }`}>
-                  <p className="text-sm text-slate-700">{turn.text}</p>
+    <div className="space-y-4">
+      <ScrollArea className="h-[400px] pr-4">
+        <div className="space-y-4">
+          {turns.map((turn, idx) => {
+            const isChar1 = turn.speaker.toLowerCase().includes(char1.name.toLowerCase());
+            const isHuman = turn.speaker.toLowerCase() === 'you';
+            const character = isHuman ? null : (isChar1 ? char1 : char2);
+            
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: isChar1 ? -20 : 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className={`flex gap-3 ${isChar1 || isHuman ? '' : 'flex-row-reverse'}`}
+              >
+                {isHuman ? (
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shrink-0">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                ) : (
+                  <CharacterAvatar 
+                    name={character.name} 
+                    avatar={character.avatar}
+                    size="sm"
+                  />
+                )}
+                <div className={`flex-1 ${isChar1 || isHuman ? 'text-left' : 'text-right'}`}>
+                  <p className="text-xs font-medium text-slate-500 mb-1">{turn.speaker}</p>
+                  <div className={`inline-block p-3 rounded-2xl ${
+                    isHuman 
+                      ? 'bg-blue-50 border border-blue-200'
+                      : isChar1 
+                        ? 'bg-white border border-slate-200' 
+                        : 'bg-violet-100 border border-violet-200'
+                  }`}>
+                    <p className="text-sm text-slate-700">{turn.text}</p>
+                  </div>
                 </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </ScrollArea>
+
+      {empathyInsights && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-rose-50 to-pink-50 border border-rose-200 rounded-2xl p-5"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Heart className="w-5 h-5 text-rose-600" />
+            <h3 className="font-semibold text-slate-900">Empathy Insights</h3>
+          </div>
+          <div className="space-y-3 text-sm text-slate-700">
+            {empathyInsights.perspective_shifts?.length > 0 && (
+              <div>
+                <p className="font-medium text-rose-700 mb-1">Perspective Shifts:</p>
+                <ul className="list-disc list-inside space-y-1 text-slate-600">
+                  {empathyInsights.perspective_shifts.map((shift, idx) => (
+                    <li key={idx}>{shift}</li>
+                  ))}
+                </ul>
               </div>
-            </motion.div>
-          );
-        })}
-      </div>
-    </ScrollArea>
+            )}
+            {empathyInsights.emotional_connections?.length > 0 && (
+              <div>
+                <p className="font-medium text-rose-700 mb-1">Emotional Connections:</p>
+                <ul className="list-disc list-inside space-y-1 text-slate-600">
+                  {empathyInsights.emotional_connections.map((conn, idx) => (
+                    <li key={idx}>{conn}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {empathyInsights.key_learnings?.length > 0 && (
+              <div>
+                <p className="font-medium text-rose-700 mb-1">Key Learnings:</p>
+                <ul className="list-disc list-inside space-y-1 text-slate-600">
+                  {empathyInsights.key_learnings.map((learning, idx) => (
+                    <li key={idx}>{learning}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </div>
   );
 }
 
@@ -111,6 +170,11 @@ export default function CrossBookDialogue() {
   const [topic, setTopic] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [dialogue, setDialogue] = useState([]);
+  const [empathyInsights, setEmpathyInsights] = useState(null);
+  const [includeHuman, setIncludeHuman] = useState(false);
+  const [conversationLength, setConversationLength] = useState('medium');
+  const [humanInput, setHumanInput] = useState('');
+  const [isHumanTurn, setIsHumanTurn] = useState(false);
 
   const { data: books = [] } = useQuery({
     queryKey: ['books'],
@@ -122,6 +186,12 @@ export default function CrossBookDialogue() {
   const char1 = book1?.characters?.find(c => c.name === selectedChar1);
   const char2 = book2?.characters?.find(c => c.name === selectedChar2);
 
+  const lengthMap = {
+    short: '4-6',
+    medium: '8-12',
+    long: '14-18'
+  };
+
   const buildCharacterContext = (character, book) => {
     return `
 CHARACTER: ${character.name} from "${book.title}" by ${book.author}
@@ -132,17 +202,49 @@ CHARACTER: ${character.name} from "${book.title}" by ${book.author}
 - Relationships: ${character.relationships?.map(r => `${r.character_name} (${r.relationship_type})`).join(', ') || 'Various'}`;
   };
 
+  const generateAITopic = async () => {
+    if (!char1 || !char2) return;
+    
+    setIsGenerating(true);
+    try {
+      const prompt = `You have two characters from different books:
+- ${char1.name} from "${book1.title}" (${book1.genre})
+- ${char2.name} from "${book2.title}" (${book2.genre})
+
+Generate a compelling conversation topic that would:
+1. Highlight their different perspectives and experiences
+2. Create opportunities for empathy and understanding
+3. Explore meaningful themes like courage, loss, identity, justice, or relationships
+
+Respond with just the topic/question (1-2 sentences).`;
+
+      const response = await base44.integrations.Core.InvokeLLM({ prompt });
+      setTopic(response);
+    } catch (error) {
+      console.error('Failed to generate topic:', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const generateDialogue = async () => {
     if (!char1 || !char2) return;
     
     setIsGenerating(true);
     setDialogue([]);
+    setEmpathyInsights(null);
+    setIsHumanTurn(false);
 
     try {
       const char1Context = buildCharacterContext(char1, book1);
       const char2Context = buildCharacterContext(char2, book2);
+      const numTurns = lengthMap[conversationLength];
 
-      const prompt = `${SYSTEM_PROMPT}
+      const humanParticipation = includeHuman 
+        ? '\n\nIMPORTANT: This conversation will include a human participant named "You". Leave space for their input by occasionally having characters ask "You" direct questions or invite their perspective. When you see [HUMAN TURN], pause for human input.'
+        : '';
+
+      const prompt = `${SYSTEM_PROMPT}${humanParticipation}
 
 ${char1Context}
 
@@ -150,30 +252,77 @@ ${char2Context}
 
 CONVERSATION TOPIC: ${topic || 'These two characters meet and discover they\'re from different stories. They discuss their experiences, challenges, and what defines them.'}
 
+CONVERSATION LENGTH: Generate ${numTurns} total speaking turns
+
 SPECIAL CONSIDERATION:
 - ${char1.name} comes from ${book1.genre || 'their story'} - bring that sensibility
 - ${char2.name} comes from ${book2.genre || 'their story'} - contrast with the above
 - Both should be curious but true to themselves
 - Explore how different story worlds shape different perspectives
+${includeHuman ? '- Occasionally invite "You" (the human) into the conversation with direct questions' : ''}
 
-Generate the dialogue:`;
+After the dialogue, provide empathy analysis.`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
         response_json_schema: {
           type: 'object',
           properties: {
-            dialogue: { type: 'string', description: 'The full dialogue exchange' }
+            dialogue: { type: 'string', description: 'The full dialogue exchange' },
+            empathy_insights: {
+              type: 'object',
+              properties: {
+                perspective_shifts: { type: 'array', items: { type: 'string' }, description: 'Moments where characters saw from another perspective' },
+                emotional_connections: { type: 'array', items: { type: 'string' }, description: 'Points of emotional resonance or understanding' },
+                key_learnings: { type: 'array', items: { type: 'string' }, description: 'What each character learned from the other' }
+              }
+            }
           }
         }
       });
 
       const turns = parseDialogue(response.dialogue);
       setDialogue(turns);
+      setEmpathyInsights(response.empathy_insights);
+
+      // Check if human should participate
+      if (includeHuman && turns.length > 2) {
+        setIsHumanTurn(true);
+      }
     } catch (error) {
       console.error('Failed to generate dialogue:', error);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleHumanResponse = async () => {
+    if (!humanInput.trim()) return;
+
+    const humanTurn = { speaker: 'You', text: humanInput.trim() };
+    setDialogue(prev => [...prev, humanTurn]);
+    setHumanInput('');
+    setIsGenerating(true);
+
+    try {
+      const conversationSoFar = dialogue.map(t => `${t.speaker}: ${t.text}`).join('\n');
+      const prompt = `Continue this conversation between ${char1.name}, ${char2.name}, and a human reader.
+
+Previous conversation:
+${conversationSoFar}
+
+Human just said: "${humanInput.trim()}"
+
+${char1.name} (from ${book1.title}) should respond first, then ${char2.name} (from ${book2.title}). Keep responses natural and build on the human's input. Generate 2-3 more exchanges.`;
+
+      const response = await base44.integrations.Core.InvokeLLM({ prompt });
+      const newTurns = parseDialogue(response);
+      setDialogue(prev => [...prev, ...newTurns]);
+    } catch (error) {
+      console.error('Failed to continue dialogue:', error);
+    } finally {
+      setIsGenerating(false);
+      setIsHumanTurn(false);
     }
   };
 
@@ -199,9 +348,22 @@ Generate the dialogue:`;
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Left: Setup */}
-          <div className="space-y-6">
+        <Tabs defaultValue="dialogue" className="w-full">
+          <TabsList className="mb-6">
+            <TabsTrigger value="dialogue">
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Dialogue Generator
+            </TabsTrigger>
+            <TabsTrigger value="science">
+              <Brain className="w-4 h-4 mr-2" />
+              The Science
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dialogue">
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Left: Setup */}
+              <div className="space-y-6">
             <div className="bg-white rounded-2xl border border-slate-200 p-6">
               <h2 className="font-semibold text-slate-900 mb-4">Select Characters</h2>
               
@@ -268,13 +430,47 @@ Generate the dialogue:`;
               </div>
             </div>
 
+            {/* Conversation Settings */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+              <div>
+                <Label>Conversation Length</Label>
+                <Select value={conversationLength} onValueChange={setConversationLength}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="short">Short (4-6 exchanges)</SelectItem>
+                    <SelectItem value="medium">Medium (8-12 exchanges)</SelectItem>
+                    <SelectItem value="long">Long (14-18 exchanges)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label>Include me in conversation</Label>
+                <Switch checked={includeHuman} onCheckedChange={setIncludeHuman} />
+              </div>
+            </div>
+
             {/* Topic Input */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6">
-              <Label>Conversation Topic (optional)</Label>
+              <div className="flex items-center justify-between mb-2">
+                <Label>Conversation Topic</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={generateAITopic}
+                  disabled={!canGenerate || isGenerating}
+                  className="text-xs"
+                >
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  AI Suggest
+                </Button>
+              </div>
               <Textarea
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder="E.g., 'They discuss what it means to be a hero' or 'They compare their different worlds and challenges'"
+                placeholder="E.g., 'They discuss what it means to be a hero' or leave empty for AI to choose"
                 className="mt-2"
                 rows={3}
               />
@@ -285,7 +481,7 @@ Generate the dialogue:`;
                 className="w-full mt-4 bg-violet-600 hover:bg-violet-700"
               >
                 {isGenerating ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating Dialogue...</>
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
                 ) : (
                   <><Sparkles className="w-4 h-4 mr-2" /> Generate Dialogue</>
                 )}
@@ -301,7 +497,27 @@ Generate the dialogue:`;
             </h2>
 
             {dialogue.length > 0 ? (
-              <DialogueView turns={dialogue} char1={char1} char2={char2} />
+              <div className="space-y-4">
+                <DialogueView turns={dialogue} char1={char1} char2={char2} empathyInsights={empathyInsights} />
+                
+                {includeHuman && isHumanTurn && !isGenerating && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <p className="text-sm text-slate-600 mb-3">Your turn to respond:</p>
+                    <div className="flex gap-2">
+                      <Input
+                        value={humanInput}
+                        onChange={(e) => setHumanInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleHumanResponse()}
+                        placeholder="Share your thoughts..."
+                        className="flex-1"
+                      />
+                      <Button onClick={handleHumanResponse} size="icon">
+                        <Send className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="flex items-center justify-center h-[400px] text-center">
                 <div>
@@ -317,7 +533,108 @@ Generate the dialogue:`;
               </div>
             )}
           </div>
-        </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="science">
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white rounded-2xl border border-slate-200 p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center">
+                    <Brain className="w-6 h-6 text-rose-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-serif font-semibold text-slate-900">The Science of Literary Empathy</h2>
+                    <p className="text-slate-500">How reading fiction builds emotional intelligence</p>
+                  </div>
+                </div>
+
+                <div className="prose prose-slate max-w-none space-y-6">
+                  <section>
+                    <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                      <Heart className="w-5 h-5 text-rose-500" />
+                      What is Literary Empathy?
+                    </h3>
+                    <p className="text-slate-600">
+                      Literary empathy is the ability to understand and share the feelings of fictional characters. 
+                      Research shows that engaging deeply with characters' inner lives activates the same neural 
+                      networks we use to understand real people's emotions and intentions.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h3 className="text-lg font-semibold text-slate-900">The Neuroscience</h3>
+                    <p className="text-slate-600">
+                      Brain imaging studies reveal that reading literary fiction activates:
+                    </p>
+                    <ul className="list-disc list-inside space-y-2 text-slate-600">
+                      <li><strong>Mirror neurons:</strong> Help us simulate characters' experiences in our own minds</li>
+                      <li><strong>Theory of Mind network:</strong> Allows us to infer characters' thoughts and motivations</li>
+                      <li><strong>Emotional processing centers:</strong> Process characters' feelings as if they were real</li>
+                      <li><strong>Memory consolidation systems:</strong> Store character experiences alongside our own memories</li>
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h3 className="text-lg font-semibold text-slate-900">Research Findings</h3>
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-3">
+                      <p className="text-slate-600">
+                        <strong>Study 1 (Kidd & Castano, 2013):</strong> Reading literary fiction improved performance 
+                        on tests of empathy and emotional intelligence compared to popular fiction or non-fiction.
+                      </p>
+                      <p className="text-slate-600">
+                        <strong>Study 2 (Mar et al., 2006):</strong> Lifetime exposure to fiction (but not non-fiction) 
+                        predicted better social cognition and empathy scores.
+                      </p>
+                      <p className="text-slate-600">
+                        <strong>Study 3 (Bal & Veltkamp, 2013):</strong> Readers who were "transported" into stories 
+                        showed increased empathy that lasted up to a week after reading.
+                      </p>
+                    </div>
+                  </section>
+
+                  <section>
+                    <h3 className="text-lg font-semibold text-slate-900">Why Character Dialogue Matters</h3>
+                    <p className="text-slate-600">
+                      Conversations between characters from different stories amplify empathy development because:
+                    </p>
+                    <ul className="list-disc list-inside space-y-2 text-slate-600">
+                      <li><strong>Perspective contrast:</strong> Seeing different worldviews side-by-side highlights how context shapes beliefs</li>
+                      <li><strong>Active processing:</strong> Comparing characters requires deeper cognitive engagement</li>
+                      <li><strong>Reduced bias:</strong> Fiction provides "safe practice" for understanding different viewpoints</li>
+                      <li><strong>Emotional flexibility:</strong> Holding multiple characters' emotions simultaneously builds capacity for nuance</li>
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h3 className="text-lg font-semibold text-slate-900">Practical Applications</h3>
+                    <p className="text-slate-600">
+                      This cross-book dialogue feature is designed to:
+                    </p>
+                    <ul className="list-disc list-inside space-y-2 text-slate-600">
+                      <li>Make implicit character understanding explicit through conversation</li>
+                      <li>Create opportunities to see familiar characters through fresh perspectives</li>
+                      <li>Build bridges between different narrative worlds and value systems</li>
+                      <li>Practice perspective-taking in a low-stakes, engaging environment</li>
+                      <li>Develop the cognitive flexibility needed for real-world empathy</li>
+                    </ul>
+                  </section>
+
+                  <section className="bg-violet-50 border border-violet-200 rounded-lg p-5">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">The Bottom Line</h3>
+                    <p className="text-slate-600">
+                      Fiction isn't just entertainment—it's a gym for your empathy muscles. By engaging with characters' 
+                      inner lives, especially across different stories, you're literally rewiring your brain to better 
+                      understand diverse human experiences. Every conversation you generate here is practice for 
+                      understanding the real, complex people in your life.
+                    </p>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
       </div>
     </div>
   );
