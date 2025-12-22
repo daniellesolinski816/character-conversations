@@ -635,7 +635,6 @@ ${char1.name} (from ${book1.title}) should respond first, then ${char2.name} (fr
           </TabsContent>
         </Tabs>
       </div>
-      </div>
     </div>
   );
 }
