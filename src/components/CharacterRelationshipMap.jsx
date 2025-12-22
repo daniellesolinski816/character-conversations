@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { X, ZoomIn, ZoomOut, Maximize2, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import CharacterAvatar from './CharacterAvatar';
 
 const relationshipColors = {
@@ -187,6 +188,12 @@ export default function CharacterRelationshipMap({ open, onOpenChange, character
   const handleZoomOut = () => setZoom(z => Math.max(z - 0.2, 0.5));
   const handleReset = () => setZoom(1);
 
+  const handleShare = () => {
+    const shareText = `Check out the character relationships in this story!\n\nCharacters: ${characters.map(c => c.name).join(', ')}`;
+    navigator.clipboard.writeText(shareText);
+    toast.success('Relationship map info copied to clipboard!');
+  };
+
   const selectedCharDetails = selectedCharacter 
     ? characters.find(c => c.name === selectedCharacter.name)
     : null;
@@ -202,6 +209,9 @@ export default function CharacterRelationshipMap({ open, onOpenChange, character
           <DialogTitle className="flex items-center justify-between">
             <span>Character Relationship Map</span>
             <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" onClick={handleShare} title="Share">
+                <Share2 className="w-4 h-4" />
+              </Button>
               <Button variant="outline" size="icon" onClick={handleZoomOut}>
                 <ZoomOut className="w-4 h-4" />
               </Button>

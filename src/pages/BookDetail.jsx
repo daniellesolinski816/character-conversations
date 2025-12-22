@@ -4,13 +4,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, BookOpen, Clock, Users, Play, Lightbulb, MessageCircle, GitBranch, Settings2, Heart } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, Users, Play, Lightbulb, MessageCircle, GitBranch, Settings2, Heart, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CharacterAvatar from '@/components/CharacterAvatar';
 import DiscussionQuestions from '@/components/DiscussionQuestions';
 import CharacterRelationshipMap from '@/components/CharacterRelationshipMap';
 import CharacterDetailModal from '@/components/CharacterDetailModal';
 import CharacterTrainingModal from '@/components/CharacterTrainingModal';
+import StoryContentGenerator from '@/components/StoryContentGenerator';
 
 export default function BookDetail() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -19,6 +20,7 @@ export default function BookDetail() {
   const [showRelationshipMap, setShowRelationshipMap] = useState(false);
   const [selectedCharacterForDetail, setSelectedCharacterForDetail] = useState(null);
   const [selectedCharacterForTraining, setSelectedCharacterForTraining] = useState(null);
+  const [showContentGenerator, setShowContentGenerator] = useState(false);
 
   const { data: book, isLoading } = useQuery({
     queryKey: ['book', bookId],
@@ -174,14 +176,25 @@ export default function BookDetail() {
               </div>
 
               {/* CTA */}
-              <Button 
-                onClick={handleStartReading}
-                size="lg"
-                className="bg-slate-900 hover:bg-slate-800 rounded-full px-8 gap-2"
-              >
-                <Play className="w-4 h-4" />
-                {progress ? 'Continue Reading' : 'Start Reading'}
-              </Button>
+              <div className="flex flex-wrap gap-3">
+                <Button 
+                  onClick={handleStartReading}
+                  size="lg"
+                  className="bg-slate-900 hover:bg-slate-800 rounded-full px-8 gap-2"
+                >
+                  <Play className="w-4 h-4" />
+                  {progress ? 'Continue Reading' : 'Start Reading'}
+                </Button>
+                <Button 
+                  onClick={() => setShowContentGenerator(true)}
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full px-6 gap-2 border-violet-200 text-violet-700 hover:bg-violet-50"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  AI Content Generator
+                </Button>
+              </div>
             </motion.div>
           </div>
         </div>
@@ -362,6 +375,13 @@ export default function BookDetail() {
           onSave={handleCharacterUpdate}
         />
       )}
+
+      {/* Story Content Generator */}
+      <StoryContentGenerator
+        open={showContentGenerator}
+        onOpenChange={setShowContentGenerator}
+        book={book}
+      />
     </div>
   );
 }
