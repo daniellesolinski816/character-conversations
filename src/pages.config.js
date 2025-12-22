@@ -8,6 +8,7 @@ import Discussion from './pages/Discussion';
 import Home from './pages/Home';
 import Reader from './pages/Reader';
 import WritingDetail from './pages/WritingDetail';
+import CrossBookDialogue from './pages/CrossBookDialogue';
 import __Layout from './Layout.jsx';
 
 
@@ -22,6 +23,7 @@ export const PAGES = {
     "Home": Home,
     "Reader": Reader,
     "WritingDetail": WritingDetail,
+    "CrossBookDialogue": CrossBookDialogue,
 }
 
 export const pagesConfig = {
