@@ -241,7 +241,7 @@ Respond with just the topic/question (1-2 sentences).`;
       const numTurns = lengthMap[conversationLength];
 
       const humanParticipation = numHumans > 0
-        ? `\n\nIMPORTANT: This conversation will include ${numHumans} human participant${numHumans > 1 ? 's' : ''} named "You${numHumans > 1 ? ' (Person 1)', 'You (Person 2)' + (numHumans > 2 ? ', You (Person 3)' : '') : ''}". Leave space for their input by occasionally having characters ask direct questions or invite perspectives from the human participants.`
+        ? `\n\nIMPORTANT: This conversation will include ${numHumans} human participant${numHumans > 1 ? 's' : ''}. Leave space for their input by occasionally having characters ask direct questions or invite perspectives from the human participants.`
         : '';
 
       const prompt = `${SYSTEM_PROMPT}${humanParticipation}
