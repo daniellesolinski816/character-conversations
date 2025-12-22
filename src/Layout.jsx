@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { BookOpen, Users, Home, MessageSquare } from 'lucide-react';
+import { BookOpen, Users, Home, MessageSquare, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Layout({ children, currentPageName }) {
@@ -12,6 +12,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Community', icon: Users, page: 'Community' },
     { name: 'Clubs', icon: BookOpen, page: 'BookClubs' },
     { name: 'Cross-Book Chat', icon: MessageSquare, page: 'CrossBookDialogue' },
+    { name: 'The Science', icon: Brain, page: 'EmpathyScience' },
   ];
 
   if (isReaderPage) {

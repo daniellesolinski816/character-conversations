@@ -9,6 +9,7 @@ import Home from './pages/Home';
 import Reader from './pages/Reader';
 import WritingDetail from './pages/WritingDetail';
 import CrossBookDialogue from './pages/CrossBookDialogue';
+import EmpathyScience from './pages/EmpathyScience';
 import __Layout from './Layout.jsx';
 
 
@@ -24,6 +25,7 @@ export const PAGES = {
     "Reader": Reader,
     "WritingDetail": WritingDetail,
     "CrossBookDialogue": CrossBookDialogue,
+    "EmpathyScience": EmpathyScience,
 }
 
 export const pagesConfig = {

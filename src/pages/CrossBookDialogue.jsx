@@ -348,19 +348,7 @@ ${char1.name} (from ${book1.title}) should respond first, then ${char2.name} (fr
           </div>
         </div>
 
-        <Tabs defaultValue="dialogue" className="w-full">
-          <TabsList className="mb-6">
-            <TabsTrigger value="dialogue">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Dialogue Generator
-            </TabsTrigger>
-            <TabsTrigger value="science">
-              <Brain className="w-4 h-4 mr-2" />
-              The Science
-            </TabsTrigger>
-          </TabsList>
 
-          <TabsContent value="dialogue">
             <div className="grid lg:grid-cols-2 gap-8">
               {/* Left: Setup */}
               <div className="space-y-6">
@@ -534,106 +522,6 @@ ${char1.name} (from ${book1.title}) should respond first, then ${char2.name} (fr
             )}
           </div>
             </div>
-          </TabsContent>
-
-          <TabsContent value="science">
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-white rounded-2xl border border-slate-200 p-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center">
-                    <Brain className="w-6 h-6 text-rose-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-serif font-semibold text-slate-900">The Science of Literary Empathy</h2>
-                    <p className="text-slate-500">How reading fiction builds emotional intelligence</p>
-                  </div>
-                </div>
-
-                <div className="prose prose-slate max-w-none space-y-6">
-                  <section>
-                    <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                      <Heart className="w-5 h-5 text-rose-500" />
-                      What is Literary Empathy?
-                    </h3>
-                    <p className="text-slate-600">
-                      Literary empathy is the ability to understand and share the feelings of fictional characters. 
-                      Research shows that engaging deeply with characters' inner lives activates the same neural 
-                      networks we use to understand real people's emotions and intentions.
-                    </p>
-                  </section>
-
-                  <section>
-                    <h3 className="text-lg font-semibold text-slate-900">The Neuroscience</h3>
-                    <p className="text-slate-600">
-                      Brain imaging studies reveal that reading literary fiction activates:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 text-slate-600">
-                      <li><strong>Mirror neurons:</strong> Help us simulate characters' experiences in our own minds</li>
-                      <li><strong>Theory of Mind network:</strong> Allows us to infer characters' thoughts and motivations</li>
-                      <li><strong>Emotional processing centers:</strong> Process characters' feelings as if they were real</li>
-                      <li><strong>Memory consolidation systems:</strong> Store character experiences alongside our own memories</li>
-                    </ul>
-                  </section>
-
-                  <section>
-                    <h3 className="text-lg font-semibold text-slate-900">Research Findings</h3>
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-3">
-                      <p className="text-slate-600">
-                        <strong>Study 1 (Kidd & Castano, 2013):</strong> Reading literary fiction improved performance 
-                        on tests of empathy and emotional intelligence compared to popular fiction or non-fiction.
-                      </p>
-                      <p className="text-slate-600">
-                        <strong>Study 2 (Mar et al., 2006):</strong> Lifetime exposure to fiction (but not non-fiction) 
-                        predicted better social cognition and empathy scores.
-                      </p>
-                      <p className="text-slate-600">
-                        <strong>Study 3 (Bal & Veltkamp, 2013):</strong> Readers who were "transported" into stories 
-                        showed increased empathy that lasted up to a week after reading.
-                      </p>
-                    </div>
-                  </section>
-
-                  <section>
-                    <h3 className="text-lg font-semibold text-slate-900">Why Character Dialogue Matters</h3>
-                    <p className="text-slate-600">
-                      Conversations between characters from different stories amplify empathy development because:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 text-slate-600">
-                      <li><strong>Perspective contrast:</strong> Seeing different worldviews side-by-side highlights how context shapes beliefs</li>
-                      <li><strong>Active processing:</strong> Comparing characters requires deeper cognitive engagement</li>
-                      <li><strong>Reduced bias:</strong> Fiction provides "safe practice" for understanding different viewpoints</li>
-                      <li><strong>Emotional flexibility:</strong> Holding multiple characters' emotions simultaneously builds capacity for nuance</li>
-                    </ul>
-                  </section>
-
-                  <section>
-                    <h3 className="text-lg font-semibold text-slate-900">Practical Applications</h3>
-                    <p className="text-slate-600">
-                      This cross-book dialogue feature is designed to:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 text-slate-600">
-                      <li>Make implicit character understanding explicit through conversation</li>
-                      <li>Create opportunities to see familiar characters through fresh perspectives</li>
-                      <li>Build bridges between different narrative worlds and value systems</li>
-                      <li>Practice perspective-taking in a low-stakes, engaging environment</li>
-                      <li>Develop the cognitive flexibility needed for real-world empathy</li>
-                    </ul>
-                  </section>
-
-                  <section className="bg-violet-50 border border-violet-200 rounded-lg p-5">
-                    <h3 className="text-lg font-semibold text-slate-900 mb-2">The Bottom Line</h3>
-                    <p className="text-slate-600">
-                      Fiction isn't just entertainment—it's a gym for your empathy muscles. By engaging with characters' 
-                      inner lives, especially across different stories, you're literally rewiring your brain to better 
-                      understand diverse human experiences. Every conversation you generate here is practice for 
-                      understanding the real, complex people in your life.
-                    </p>
-                  </section>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
       </div>
     </div>
   );
