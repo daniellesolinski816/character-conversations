@@ -171,7 +171,7 @@ export default function CrossBookDialogue() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [dialogue, setDialogue] = useState([]);
   const [empathyInsights, setEmpathyInsights] = useState(null);
-  const [includeHuman, setIncludeHuman] = useState(false);
+  const [numHumans, setNumHumans] = useState(0);
   const [conversationLength, setConversationLength] = useState('medium');
   const [humanInput, setHumanInput] = useState('');
   const [isHumanTurn, setIsHumanTurn] = useState(false);
@@ -240,8 +240,8 @@ Respond with just the topic/question (1-2 sentences).`;
       const char2Context = buildCharacterContext(char2, book2);
       const numTurns = lengthMap[conversationLength];
 
-      const humanParticipation = includeHuman 
-        ? '\n\nIMPORTANT: This conversation will include a human participant named "You". Leave space for their input by occasionally having characters ask "You" direct questions or invite their perspective. When you see [HUMAN TURN], pause for human input.'
+      const humanParticipation = numHumans > 0
+        ? `\n\nIMPORTANT: This conversation will include ${numHumans} human participant${numHumans > 1 ? 's' : ''} named "You${numHumans > 1 ? ' (Person 1)', 'You (Person 2)' + (numHumans > 2 ? ', You (Person 3)' : '') : ''}". Leave space for their input by occasionally having characters ask direct questions or invite perspectives from the human participants.`
         : '';
 
       const prompt = `${SYSTEM_PROMPT}${humanParticipation}
@@ -259,7 +259,7 @@ SPECIAL CONSIDERATION:
 - ${char2.name} comes from ${book2.genre || 'their story'} - contrast with the above
 - Both should be curious but true to themselves
 - Explore how different story worlds shape different perspectives
-${includeHuman ? '- Occasionally invite "You" (the human) into the conversation with direct questions' : ''}
+${numHumans > 0 ? `- Occasionally invite the human participant${numHumans > 1 ? 's' : ''} into the conversation with direct questions` : ''}
 
 After the dialogue, provide empathy analysis.`;
 
@@ -286,7 +286,7 @@ After the dialogue, provide empathy analysis.`;
       setEmpathyInsights(response.empathy_insights);
 
       // Check if human should participate
-      if (includeHuman && turns.length > 2) {
+      if (numHumans > 0 && turns.length > 2) {
         setIsHumanTurn(true);
       }
     } catch (error) {
@@ -419,7 +419,7 @@ ${char1.name} (from ${book1.title}) should respond first, then ${char2.name} (fr
             </div>
 
             {/* Conversation Settings */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
               <div>
                 <Label>Conversation Length</Label>
                 <Select value={conversationLength} onValueChange={setConversationLength}>
@@ -434,9 +434,32 @@ ${char1.name} (from ${book1.title}) should respond first, then ${char2.name} (fr
                 </Select>
               </div>
 
-              <div className="flex items-center justify-between">
-                <Label>Include me in conversation</Label>
-                <Switch checked={includeHuman} onCheckedChange={setIncludeHuman} />
+              <div className="border-t pt-4">
+                <Label className="text-base font-semibold">Human Participants</Label>
+                <p className="text-xs text-slate-500 mt-1 mb-3">Add yourself or multiple people to join the conversation</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {[0, 1, 2, 3].map(num => (
+                    <button
+                      key={num}
+                      onClick={() => setNumHumans(num)}
+                      className={`py-2.5 px-3 rounded-lg border-2 font-medium transition-all ${
+                        numHumans === num
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-slate-200 hover:border-blue-300 text-slate-600'
+                      }`}
+                    >
+                      {num === 0 ? 'None' : num}
+                    </button>
+                  ))}
+                </div>
+                {numHumans > 0 && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg flex items-start gap-2">
+                    <User className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                    <p className="text-xs text-blue-700">
+                      {numHumans === 1 ? 'You' : `${numHumans} people`} will be able to respond during the conversation
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -488,9 +511,12 @@ ${char1.name} (from ${book1.title}) should respond first, then ${char2.name} (fr
               <div className="space-y-4">
                 <DialogueView turns={dialogue} char1={char1} char2={char2} empathyInsights={empathyInsights} />
                 
-                {includeHuman && isHumanTurn && !isGenerating && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                    <p className="text-sm text-slate-600 mb-3">Your turn to respond:</p>
+                {numHumans > 0 && isHumanTurn && !isGenerating && (
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <User className="w-5 h-5 text-blue-600" />
+                      <p className="text-sm font-semibold text-blue-900">Your turn to respond:</p>
+                    </div>
                     <div className="flex gap-2">
                       <Input
                         value={humanInput}
@@ -499,7 +525,7 @@ ${char1.name} (from ${book1.title}) should respond first, then ${char2.name} (fr
                         placeholder="Share your thoughts..."
                         className="flex-1"
                       />
-                      <Button onClick={handleHumanResponse} size="icon">
+                      <Button onClick={handleHumanResponse} size="icon" className="bg-blue-600 hover:bg-blue-700">
                         <Send className="w-4 h-4" />
                       </Button>
                     </div>
