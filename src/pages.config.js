@@ -1,27 +1,27 @@
-import Home from './pages/Home';
-import BookDetail from './pages/BookDetail';
-import Reader from './pages/Reader';
 import BookClubs from './pages/BookClubs';
-import ClubDetail from './pages/ClubDetail';
-import Discussion from './pages/Discussion';
-import Community from './pages/Community';
+import BookDetail from './pages/BookDetail';
 import Challenges from './pages/Challenges';
-import WritingDetail from './pages/WritingDetail';
+import ClubDetail from './pages/ClubDetail';
+import Community from './pages/Community';
 import CrossCharacterDialogue from './pages/CrossCharacterDialogue';
+import Discussion from './pages/Discussion';
+import Home from './pages/Home';
+import Reader from './pages/Reader';
+import WritingDetail from './pages/WritingDetail';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Home": Home,
-    "BookDetail": BookDetail,
-    "Reader": Reader,
     "BookClubs": BookClubs,
-    "ClubDetail": ClubDetail,
-    "Discussion": Discussion,
-    "Community": Community,
+    "BookDetail": BookDetail,
     "Challenges": Challenges,
-    "WritingDetail": WritingDetail,
+    "ClubDetail": ClubDetail,
+    "Community": Community,
     "CrossCharacterDialogue": CrossCharacterDialogue,
+    "Discussion": Discussion,
+    "Home": Home,
+    "Reader": Reader,
+    "WritingDetail": WritingDetail,
 }
 
 export const pagesConfig = {

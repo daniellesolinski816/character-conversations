@@ -4,17 +4,21 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, BookOpen, Clock, Users, Play, Lightbulb, MessageCircle, GitBranch } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, Users, Play, Lightbulb, MessageCircle, GitBranch, Settings2, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CharacterAvatar from '@/components/CharacterAvatar';
 import DiscussionQuestions from '@/components/DiscussionQuestions';
 import CharacterRelationshipMap from '@/components/CharacterRelationshipMap';
+import CharacterDetailModal from '@/components/CharacterDetailModal';
+import CharacterTrainingModal from '@/components/CharacterTrainingModal';
 
 export default function BookDetail() {
   const urlParams = new URLSearchParams(window.location.search);
   const bookId = urlParams.get('id');
   const queryClient = useQueryClient();
   const [showRelationshipMap, setShowRelationshipMap] = useState(false);
+  const [selectedCharacterForDetail, setSelectedCharacterForDetail] = useState(null);
+  const [selectedCharacterForTraining, setSelectedCharacterForTraining] = useState(null);
 
   const { data: book, isLoading } = useQuery({
     queryKey: ['book', bookId],
@@ -44,6 +48,14 @@ export default function BookDetail() {
       });
     }
     window.location.href = createPageUrl(`Reader?id=${bookId}`);
+  };
+
+  const handleCharacterUpdate = async (updatedCharacter) => {
+    const updatedCharacters = book.characters.map(c => 
+      c.name === updatedCharacter.name ? updatedCharacter : c
+    );
+    await base44.entities.Book.update(bookId, { characters: updatedCharacters });
+    queryClient.invalidateQueries(['book', bookId]);
   };
 
   if (isLoading) {
@@ -217,7 +229,29 @@ export default function BookDetail() {
                     size="lg"
                   />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-900 truncate">{char.name}</h3>
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-slate-900 truncate">{char.name}</h3>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => setSelectedCharacterForDetail(char)}
+                          title="View emotional arc & events"
+                        >
+                          <Heart className="w-3.5 h-3.5 text-rose-500" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => setSelectedCharacterForTraining(char)}
+                          title="Customize personality & relationships"
+                        >
+                          <Settings2 className="w-3.5 h-3.5 text-violet-500" />
+                        </Button>
+                      </div>
+                    </div>
                     <p className="text-sm text-slate-500 mt-1 line-clamp-2">
                       {char.description}
                     </p>
@@ -306,6 +340,28 @@ export default function BookDetail() {
         onOpenChange={setShowRelationshipMap}
         characters={book.characters || []}
       />
+
+      {/* Character Detail Modal (Emotional Arc & Canon Events) */}
+      {selectedCharacterForDetail && (
+        <CharacterDetailModal
+          open={!!selectedCharacterForDetail}
+          onOpenChange={(open) => !open && setSelectedCharacterForDetail(null)}
+          character={selectedCharacterForDetail}
+          allCharacters={book.characters || []}
+          onSave={handleCharacterUpdate}
+        />
+      )}
+
+      {/* Character Training Modal (Personality Quirks & Relationships) */}
+      {selectedCharacterForTraining && (
+        <CharacterTrainingModal
+          open={!!selectedCharacterForTraining}
+          onOpenChange={(open) => !open && setSelectedCharacterForTraining(null)}
+          character={selectedCharacterForTraining}
+          allCharacters={book.characters || []}
+          onSave={handleCharacterUpdate}
+        />
+      )}
     </div>
   );
 }
