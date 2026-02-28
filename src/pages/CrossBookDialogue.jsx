@@ -192,6 +192,9 @@ export default function CrossBookDialogue() {
   const [conversationLength, setConversationLength] = useState('medium');
   const [humanInput, setHumanInput] = useState('');
   const [isHumanTurn, setIsHumanTurn] = useState(false);
+  const [rawFallback, setRawFallback] = useState('');
+  const [genError, setGenError] = useState(null);
+  const [showShare, setShowShare] = useState(false);
 
   const { data: books = [] } = useQuery({
     queryKey: ['books'],
