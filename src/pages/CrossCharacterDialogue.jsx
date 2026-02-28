@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, ArrowLeft, Loader2 } from 'lucide-react';
+import { Sparkles, ArrowLeft, Loader2, Share2 } from 'lucide-react';
 import CharacterAvatar from '@/components/CharacterAvatar';
+import ShareDialogueModal from '@/components/ShareDialogueModal';
 
 const SYSTEM_PROMPT = `
 You are running a structured dialogue between two fictional characters.
@@ -80,6 +81,33 @@ function parseDialogue(raw) {
   }
 
   return turns;
+}
+
+function DialogueSkeleton() {
+  return (
+    <ScrollArea className="mt-6 h-[400px] rounded-2xl border border-slate-100 bg-white p-4">
+      <div className="space-y-5">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="space-y-3">
+            <div className="flex gap-3 items-start">
+              <div className="w-8 h-8 rounded-full bg-slate-200 animate-pulse shrink-0" />
+              <div className="space-y-2 flex-1">
+                <div className="h-3 bg-slate-200 animate-pulse rounded w-20" />
+                <div className="h-16 bg-slate-100 animate-pulse rounded-2xl max-w-[80%]" />
+              </div>
+            </div>
+            <div className="flex gap-3 items-start justify-end">
+              <div className="space-y-2 flex-1 flex flex-col items-end">
+                <div className="h-3 bg-amber-100 animate-pulse rounded w-20" />
+                <div className="h-16 bg-amber-50 animate-pulse rounded-2xl max-w-[80%] w-full" />
+              </div>
+              <div className="w-8 h-8 rounded-full bg-amber-200 animate-pulse shrink-0" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </ScrollArea>
+  );
 }
 
 function CharacterBadge({ character }) {
