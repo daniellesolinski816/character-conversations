@@ -91,6 +91,16 @@ export default function Home() {
                   Add Your Writing
                 </Button>
               </div>
+
+              <div className="mt-6">
+                <Link to={createPageUrl('EmpathyScience')}>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-rose-200 text-rose-700 text-sm hover:bg-rose-50 transition-colors shadow-sm">
+                    <Brain className="w-4 h-4" />
+                    Why reading builds empathy — the science
+                    <span className="text-rose-400">→</span>
+                  </div>
+                </Link>
+              </div>
           </motion.div>
         </div>
       </div>
