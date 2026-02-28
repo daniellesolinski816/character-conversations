@@ -532,7 +532,22 @@ ${char1.name} (from ${book1.title}) should respond first, then ${char2.name} (fr
               Conversation
             </h2>
 
-            {dialogue.length > 0 ? (
+            {genError && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700 mb-4">
+                {genError}
+              </div>
+            )}
+
+            {isGenerating && <DialogueSkeleton />}
+
+            {rawFallback && !isGenerating && (
+              <div className="rounded-2xl border border-slate-100 bg-white p-5 mb-4">
+                <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">Response</p>
+                <p className="text-sm text-slate-700 whitespace-pre-wrap">{rawFallback}</p>
+              </div>
+            )}
+
+            {!isGenerating && dialogue.length > 0 ? (
               <div className="space-y-4">
                 <DialogueView turns={dialogue} char1={char1} char2={char2} empathyInsights={empathyInsights} />
                 
