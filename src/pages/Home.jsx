@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
-import { Plus, BookOpen, Sparkles, Search, PenLine, MessageSquare } from 'lucide-react';
+import { Plus, BookOpen, Sparkles, Search, PenLine, MessageSquare, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import BookCard from '@/components/BookCard';

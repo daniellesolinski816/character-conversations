@@ -10,6 +10,7 @@ import CharacterAvatar from './CharacterAvatar';
 import ChatBubble from './ChatBubble';
 import CharacterContextDrawer from './CharacterContextDrawer';
 import CharacterTrainingModal from './CharacterTrainingModal';
+import MemoryPanel from './MemoryPanel';
 
 export default function CharacterChatPanel({ 
   book, 
