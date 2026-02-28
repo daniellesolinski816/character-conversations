@@ -127,7 +127,15 @@ function CharacterBadge({ character }) {
   );
 }
 
-function DialogueView({ characterA, characterB, dialogue }) {
+function DialogueView({ characterA, characterB, dialogue, rawFallback }) {
+  if (!dialogue.length && rawFallback) {
+    return (
+      <div className="mt-6 rounded-2xl border border-slate-100 bg-white p-5">
+        <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">Raw response</p>
+        <p className="text-sm text-slate-700 whitespace-pre-wrap">{rawFallback}</p>
+      </div>
+    );
+  }
   if (!dialogue.length) return null;
 
   return (
