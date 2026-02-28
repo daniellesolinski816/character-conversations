@@ -180,8 +180,10 @@ export default function CrossCharacterDialogue() {
   const [characterBKey, setCharacterBKey] = useState('');
   const [topic, setTopic] = useState('');
   const [dialogue, setDialogue] = useState([]);
+  const [rawFallback, setRawFallback] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
+  const [showShare, setShowShare] = useState(false);
 
   const { data: writings = [], isLoading } = useQuery({
     queryKey: ['user-writings'],
