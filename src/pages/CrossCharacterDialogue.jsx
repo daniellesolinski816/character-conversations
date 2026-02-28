@@ -224,8 +224,10 @@ export default function CrossCharacterDialogue() {
     setIsGenerating(true);
     setError(null);
     setDialogue([]);
+    setRawFallback('');
 
-    const charAProfile = `Name: ${characterA.name}
+    try {
+      const charAProfile = `Name: ${characterA.name}
 Role: ${characterA.role || 'character'}
 Description: ${characterA.short_description || ''}
 Backstory: ${characterA.backstory || ''}
@@ -233,7 +235,7 @@ Personality: ${characterA.personality_traits || ''}
 Values & Motivations: ${characterA.values_and_motivations || ''}
 From story: "${characterA.writingTitle}"`;
 
-    const charBProfile = `Name: ${characterB.name}
+      const charBProfile = `Name: ${characterB.name}
 Role: ${characterB.role || 'character'}
 Description: ${characterB.short_description || ''}
 Backstory: ${characterB.backstory || ''}
@@ -241,7 +243,7 @@ Personality: ${characterB.personality_traits || ''}
 Values & Motivations: ${characterB.values_and_motivations || ''}
 From story: "${characterB.writingTitle}"`;
 
-    const prompt = `${SYSTEM_PROMPT}
+      const prompt = `${SYSTEM_PROMPT}
 
 Here are the characters:
 
@@ -256,18 +258,27 @@ ${topic.trim()}
 
 Begin the conversation now.`;
 
-    const response = await base44.integrations.Core.InvokeLLM({ prompt });
-    
-    if (!response) {
-      setError('No response from AI');
-      setIsGenerating(false);
-      return;
-    }
+      const response = await base44.integrations.Core.InvokeLLM({ prompt });
 
-    const parsed = parseDialogue(response);
-    setDialogue(parsed);
-    setIsGenerating(false);
+      if (!response) {
+        setError('No response from AI — please try again.');
+        return;
+      }
+
+      const parsed = parseDialogue(response);
+      if (parsed.length === 0) {
+        setRawFallback(response);
+      } else {
+        setDialogue(parsed);
+      }
+    } catch (err) {
+      setError('Something went wrong — please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
+
+  const dialogueAsText = dialogue.map(t => `${characterA?.name}: ${t.a}\n${characterB?.name}: ${t.b}`).join('\n\n');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50/50 via-white to-amber-50/40">
