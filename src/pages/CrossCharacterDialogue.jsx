@@ -404,16 +404,44 @@ Begin the conversation now.`;
               )}
             </div>
 
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+
+            {/* Loading skeleton */}
+            {isGenerating && <DialogueSkeleton />}
 
             {/* Dialogue */}
-            {characterA && characterB && dialogue.length > 0 && (
-              <DialogueView
-                characterA={characterA}
-                characterB={characterB}
-                dialogue={dialogue}
-              />
+            {!isGenerating && characterA && characterB && (dialogue.length > 0 || rawFallback) && (
+              <>
+                <DialogueView
+                  characterA={characterA}
+                  characterB={characterB}
+                  dialogue={dialogue}
+                  rawFallback={rawFallback}
+                />
+                <div className="flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 border-violet-200 text-violet-700 hover:bg-violet-50"
+                    onClick={() => setShowShare(true)}
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Save & Share to Club
+                  </Button>
+                </div>
+              </>
             )}
+
+            <ShareDialogueModal
+              open={showShare}
+              onOpenChange={setShowShare}
+              dialogueText={dialogueAsText || rawFallback}
+              title={`${characterA?.name} & ${characterB?.name}: ${topic.slice(0, 60)}`}
+            />
           </div>
         )}
       </div>
