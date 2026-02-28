@@ -254,6 +254,8 @@ Respond with just the topic/question (1-2 sentences).`;
     setDialogue([]);
     setEmpathyInsights(null);
     setIsHumanTurn(false);
+    setRawFallback('');
+    setGenError(null);
 
     try {
       const char1Context = buildCharacterContext(char1, book1);
