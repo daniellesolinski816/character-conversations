@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles, Loader2, BookOpen, MessageSquare, Brain, User, Send, Heart } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, BookOpen, MessageSquare, Brain, User, Send, Heart, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -14,6 +14,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CharacterAvatar from '@/components/CharacterAvatar';
+import ShareDialogueModal from '@/components/ShareDialogueModal';
 
 const SYSTEM_PROMPT = `You are facilitating a conversation between two characters from DIFFERENT books/stories.
 
