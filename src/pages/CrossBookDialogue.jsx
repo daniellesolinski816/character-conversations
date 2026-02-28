@@ -49,6 +49,22 @@ function parseDialogue(rawText) {
   return turns;
 }
 
+function DialogueSkeleton() {
+  return (
+    <div className="space-y-4 h-[400px] overflow-hidden">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className={`flex gap-3 ${i % 2 === 0 ? 'flex-row-reverse' : ''}`}>
+          <div className="w-8 h-8 rounded-full bg-slate-200 animate-pulse shrink-0" />
+          <div className={`flex-1 ${i % 2 === 0 ? 'flex flex-col items-end' : ''}`}>
+            <div className="h-3 bg-slate-200 animate-pulse rounded w-24 mb-2" />
+            <div className="h-14 bg-slate-100 animate-pulse rounded-2xl max-w-[75%]" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function CharacterBadge({ character, bookTitle, onClick, isSelected }) {
   return (
     <button
