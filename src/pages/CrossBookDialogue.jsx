@@ -304,15 +304,18 @@ After the dialogue, provide empathy analysis.`;
       });
 
       const turns = parseDialogue(response.dialogue);
-      setDialogue(turns);
-      setEmpathyInsights(response.empathy_insights);
-
-      // Check if human should participate
-      if (numHumans > 0 && turns.length > 2) {
-        setIsHumanTurn(true);
+      if (turns.length === 0) {
+        setRawFallback(response.dialogue || JSON.stringify(response));
+      } else {
+        setDialogue(turns);
+        setEmpathyInsights(response.empathy_insights);
+        if (numHumans > 0 && turns.length > 2) {
+          setIsHumanTurn(true);
+        }
       }
     } catch (error) {
       console.error('Failed to generate dialogue:', error);
+      setGenError('Something went wrong — please try again.');
     } finally {
       setIsGenerating(false);
     }
