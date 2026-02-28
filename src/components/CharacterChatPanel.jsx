@@ -466,6 +466,9 @@ ${character.personality_quirks.map(q => `- ${q}`).join('\n')}` : '';
         </div>
       </div>
 
+      {/* Memory Panel */}
+      <MemoryPanel chat={chat} characterName={character.name} />
+
       {/* Context Drawer */}
       <CharacterContextDrawer
         character={character}
