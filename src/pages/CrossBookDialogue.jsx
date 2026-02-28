@@ -571,8 +571,19 @@ ${char1.name} (from ${book1.title}) should respond first, then ${char2.name} (fr
                     </div>
                   </div>
                 )}
+                <div className="flex justify-end pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 border-violet-200 text-violet-700 hover:bg-violet-50"
+                    onClick={() => setShowShare(true)}
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Save & Share to Club
+                  </Button>
+                </div>
               </div>
-            ) : (
+            ) : !isGenerating && !rawFallback && (
               <div className="flex items-center justify-center h-[400px] text-center">
                 <div>
                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-violet-100 flex items-center justify-center">
@@ -586,6 +597,13 @@ ${char1.name} (from ${book1.title}) should respond first, then ${char2.name} (fr
                 </div>
               </div>
             )}
+
+            <ShareDialogueModal
+              open={showShare}
+              onOpenChange={setShowShare}
+              dialogueText={dialogue.map(t => `${t.speaker}: ${t.text}`).join('\n\n') || rawFallback}
+              title={`${char1?.name} & ${char2?.name}: ${topic.slice(0, 60)}`}
+            />
           </div>
             </div>
       </div>
