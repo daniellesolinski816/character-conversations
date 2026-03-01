@@ -59,6 +59,7 @@ import EmpathyScience from './pages/EmpathyScience';
 import Home from './pages/Home';
 import Reader from './pages/Reader';
 import WritingDetail from './pages/WritingDetail';
+import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
@@ -75,6 +76,7 @@ export const PAGES = {
     "Home": Home,
     "Reader": Reader,
     "WritingDetail": WritingDetail,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {
