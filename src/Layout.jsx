@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { BookOpen, Users, Home, MessageSquare, Brain } from 'lucide-react';
+import { BookOpen, Users, Home, MessageSquare, Brain, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Layout({ children, currentPageName }) {
