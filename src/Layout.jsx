@@ -13,6 +13,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Clubs', icon: BookOpen, page: 'BookClubs' },
     { name: 'Cross-Book Chat', icon: MessageSquare, page: 'CrossBookDialogue' },
     { name: 'The Science', icon: Brain, page: 'EmpathyScience' },
+    { name: 'Settings', icon: Settings, page: 'Settings' },
   ];
 
   if (isReaderPage) {
