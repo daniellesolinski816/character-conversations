@@ -58,8 +58,8 @@ import Discussion from './pages/Discussion';
 import EmpathyScience from './pages/EmpathyScience';
 import Home from './pages/Home';
 import Reader from './pages/Reader';
-import WritingDetail from './pages/WritingDetail';
 import Settings from './pages/Settings';
+import WritingDetail from './pages/WritingDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -75,8 +75,8 @@ export const PAGES = {
     "EmpathyScience": EmpathyScience,
     "Home": Home,
     "Reader": Reader,
-    "WritingDetail": WritingDetail,
     "Settings": Settings,
+    "WritingDetail": WritingDetail,
 }
 
 export const pagesConfig = {
