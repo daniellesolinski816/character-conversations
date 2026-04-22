@@ -1,0 +1,95 @@
+{
+  "name": "ReadingProgress",
+  "type": "object",
+  "properties": {
+    "book_id": {
+      "type": "string",
+      "description": "Reference to the book"
+    },
+    "current_chapter": {
+      "type": "number",
+      "default": 0,
+      "description": "Current chapter index"
+    },
+    "current_page": {
+      "type": "number",
+      "description": "Current page number (user-entered)"
+    },
+    "total_pages": {
+      "type": "number",
+      "description": "Total pages in the book (can be set from Book entity)"
+    },
+    "scroll_position": {
+      "type": "number",
+      "default": 0,
+      "description": "Scroll position in current chapter"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the book is finished"
+    },
+    "last_read": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last reading timestamp"
+    },
+    "reading_settings": {
+      "type": "object",
+      "properties": {
+        "font_size": {
+          "type": "string",
+          "enum": [
+            "small",
+            "medium",
+            "large",
+            "xlarge"
+          ],
+          "default": "medium"
+        },
+        "line_height": {
+          "type": "string",
+          "enum": [
+            "compact",
+            "normal",
+            "relaxed"
+          ],
+          "default": "normal"
+        },
+        "theme": {
+          "type": "string",
+          "enum": [
+            "light",
+            "sepia",
+            "dark"
+          ],
+          "default": "light"
+        }
+      }
+    },
+    "saved_words": {
+      "type": "array",
+      "description": "Words looked up with vocabulary helper",
+      "items": {
+        "type": "object",
+        "properties": {
+          "word": {
+            "type": "string"
+          },
+          "definition": {
+            "type": "string"
+          },
+          "context": {
+            "type": "string"
+          },
+          "chapter": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "book_id"
+  ]
+}

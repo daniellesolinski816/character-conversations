@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import ReaderView from '@/components/ReaderView';
 import CharacterChatPanel from '@/components/CharacterChatPanel';
 import DiscussionPanel from '@/components/DiscussionPanel';
+import LiteraryCompanionPanel from '@/components/LiteraryCompanionPanel';
 
 export default function Reader() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -18,6 +19,7 @@ export default function Reader() {
   const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [currentChat, setCurrentChat] = useState(null);
   const [showDiscussion, setShowDiscussion] = useState(false);
+  const [showCompanion, setShowCompanion] = useState(false);
   const [prefilledQuestion, setPrefilledQuestion] = useState('');
 
   const { data: book, isLoading: bookLoading } = useQuery({
@@ -101,8 +103,24 @@ export default function Reader() {
     setSelectedCharacter(character);
     setPrefilledQuestion(question);
     setShowDiscussion(false);
+    setShowCompanion(false);
     const existingChat = chats.find(c => c.character_name === character.name);
     setCurrentChat(existingChat || { book_id: bookId, character_name: character.name, messages: [] });
+  };
+
+  const handleOpenCompanion = () => {
+    setShowCompanion(true);
+    setShowDiscussion(false);
+    setSelectedCharacter(null);
+    setCurrentChat(null);
+  };
+
+  const handleUpdateCurrentPage = async (newPage) => {
+    if (progress?.id) {
+      await updateProgressMutation.mutateAsync({ id: progress.id, data: { current_page: newPage } });
+    } else {
+      await createProgressMutation.mutateAsync({ book_id: bookId, current_page: newPage, last_read: new Date().toISOString() });
+    }
   };
 
   const handleCloseChat = () => {
@@ -129,6 +147,7 @@ export default function Reader() {
     setShowDiscussion(true);
     setSelectedCharacter(null);
     setCurrentChat(null);
+    setShowCompanion(false);
   };
 
   const handleSelectQuestionFromDiscussion = (question) => {
@@ -189,6 +208,7 @@ export default function Reader() {
         onChapterChange={handleChapterChange}
         onOpenChat={handleOpenChat}
         onOpenDiscussion={handleOpenDiscussion}
+        onOpenCompanion={handleOpenCompanion}
         characters={book.characters}
         readingSettings={progress?.reading_settings}
         onSettingsChange={handleSettingsChange}
@@ -219,6 +239,19 @@ export default function Reader() {
             onClose={handleCloseChat}
             prefilledQuestion={prefilledQuestion}
             onCharacterUpdated={handleCharacterUpdated}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Literary Companion Panel */}
+      <AnimatePresence>
+        {showCompanion && (
+          <LiteraryCompanionPanel
+            book={book}
+            currentChapter={currentChapter}
+            currentPage={progress?.current_page}
+            onClose={() => setShowCompanion(false)}
+            onPositionUpdate={handleUpdateCurrentPage}
           />
         )}
       </AnimatePresence>

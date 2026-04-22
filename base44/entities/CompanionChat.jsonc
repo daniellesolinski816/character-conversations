@@ -1,0 +1,66 @@
+{
+  "name": "CompanionChat",
+  "type": "object",
+  "properties": {
+    "book_id": {
+      "type": "string",
+      "description": "Reference to the book"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user"
+    },
+    "messages": {
+      "type": "array",
+      "description": "Conversation messages",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "position_at_message": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "number"
+              },
+              "chapter": {
+                "type": "number"
+              },
+              "chapter_name": {
+                "type": "string"
+              }
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "themes_surfaced": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Auto-tagged themes from this conversation",
+      "default": []
+    },
+    "last_message_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "book_id"
+  ]
+}

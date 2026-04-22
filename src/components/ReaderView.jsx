@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, BookOpen, MessageCircle, Users, Lightbulb, Trophy, BookMarked } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, MessageCircle, Users, Lightbulb, Trophy, BookMarked, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -40,6 +40,7 @@ export default function ReaderView({
   onChapterChange,
   onOpenChat,
   onOpenDiscussion,
+  onOpenCompanion,
   characters,
   readingSettings,
   onSettingsChange,
@@ -163,6 +164,16 @@ export default function ReaderView({
                 >
                   <Lightbulb className="w-4 h-4 mr-2" />
                   Ideas
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onOpenCompanion}
+                  className="shrink-0 rounded-full border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                >
+                  <GraduationCap className="w-4 h-4 mr-2" />
+                  Companion
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

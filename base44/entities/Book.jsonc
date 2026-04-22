@@ -1,0 +1,200 @@
+{
+  "name": "Book",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Book title"
+    },
+    "author": {
+      "type": "string",
+      "description": "Author name"
+    },
+    "cover_image": {
+      "type": "string",
+      "description": "URL to book cover image"
+    },
+    "description": {
+      "type": "string",
+      "description": "Book synopsis"
+    },
+    "genre": {
+      "type": "string",
+      "enum": [
+        "fiction",
+        "mystery",
+        "romance",
+        "fantasy",
+        "sci-fi",
+        "classic",
+        "thriller",
+        "historical"
+      ],
+      "description": "Book genre"
+    },
+    "translation": {
+      "type": "string",
+      "description": "Translator name (e.g. Tiina Nunnally)"
+    },
+    "period": {
+      "type": "string",
+      "description": "Historical period (e.g. 14th century Norway)"
+    },
+    "author_context": {
+      "type": "string",
+      "description": "Biographical and intellectual context for the literary companion"
+    },
+    "companion_themes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Pre-seeded thematic vocabulary for the literary companion"
+    },
+    "total_pages": {
+      "type": "number",
+      "description": "Total pages in the book"
+    },
+    "chapters": {
+      "type": "array",
+      "description": "Book chapters",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "characters": {
+      "type": "array",
+      "description": "Main characters in the book",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "personality": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "suggested_questions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "emotional_arc": {
+            "type": "object",
+            "properties": {
+              "starting_state": {
+                "type": "string"
+              },
+              "growth_points": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "unresolved_conflicts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "potential_growth": {
+                "type": "string"
+              }
+            }
+          },
+          "canon_events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "emotional_impact": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "relationships": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "character_name": {
+                  "type": "string"
+                },
+                "relationship_type": {
+                  "type": "string",
+                  "enum": [
+                    "friend",
+                    "enemy",
+                    "mentor",
+                    "student",
+                    "rival",
+                    "family",
+                    "lover",
+                    "ally",
+                    "neutral"
+                  ]
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "training_examples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "context": {
+                  "type": "string"
+                },
+                "response": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "personality_quirks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "discussion_questions": {
+      "type": "array",
+      "description": "Book club discussion questions",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "title",
+    "author"
+  ]
+}
