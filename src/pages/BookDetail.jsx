@@ -331,11 +331,11 @@ export default function BookDetail() {
             AI-generated summaries to help you explore the story and chat with characters
           </p>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             {book.chapters.map((chapter, idx) => (
               <div
                 key={idx}
-                className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${
+                className={`flex gap-4 p-4 rounded-xl transition-colors ${
                   idx < currentChapter 
                     ? 'bg-green-50 border border-green-100' 
                     : idx === currentChapter && progress
@@ -343,7 +343,7 @@ export default function BookDetail() {
                       : 'bg-white border border-slate-100'
                 }`}
               >
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-sm font-medium mt-0.5 ${
                   idx < currentChapter 
                     ? 'bg-green-500 text-white' 
                     : idx === currentChapter && progress
@@ -352,11 +352,16 @@ export default function BookDetail() {
                 }`}>
                   {idx + 1}
                 </div>
-                <span className={`font-medium ${
-                  idx <= currentChapter ? 'text-slate-900' : 'text-slate-500'
-                }`}>
-                  {chapter.title}
-                </span>
+                <div className="flex-1 min-w-0">
+                  <p className={`font-medium ${idx <= currentChapter ? 'text-slate-900' : 'text-slate-600'}`}>
+                    {chapter.title}
+                  </p>
+                  {chapter.content && (
+                    <p className="text-sm text-slate-500 mt-1 leading-relaxed line-clamp-3">
+                      {chapter.content}
+                    </p>
+                  )}
+                </div>
               </div>
             ))}
           </div>
