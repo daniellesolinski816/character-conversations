@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, BookOpen, Clock, Users, Play, Lightbulb, MessageCircle, GitBranch, Settings2, Heart, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, Users, Play, MessageCircle, GitBranch, Settings2, Heart, Sparkles, BookMarked } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CharacterAvatar from '@/components/CharacterAvatar';
-import DiscussionQuestions from '@/components/DiscussionQuestions';
 import CharacterRelationshipMap from '@/components/CharacterRelationshipMap';
 import CharacterDetailModal from '@/components/CharacterDetailModal';
 import CharacterTrainingModal from '@/components/CharacterTrainingModal';
 import StoryContentGenerator from '@/components/StoryContentGenerator';
+import LiteraryCompanionPanel from '@/components/LiteraryCompanionPanel';
 
 export default function BookDetail() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -21,6 +21,8 @@ export default function BookDetail() {
   const [selectedCharacterForDetail, setSelectedCharacterForDetail] = useState(null);
   const [selectedCharacterForTraining, setSelectedCharacterForTraining] = useState(null);
   const [showContentGenerator, setShowContentGenerator] = useState(false);
+  const [showCompanion, setShowCompanion] = useState(false);
+  const [companionPrefill, setCompanionPrefill] = useState('');
 
   const { data: book, isLoading } = useQuery({
     queryKey: ['book', bookId],
@@ -311,7 +313,38 @@ export default function BookDetail() {
           transition={{ delay: 0.4 }}
           className="max-w-5xl mx-auto px-6 py-12"
         >
-          <DiscussionQuestions discussion={book.discussion_questions} />
+          <div className="rounded-2xl border border-amber-100 bg-white/70 p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                <MessageCircle className="w-5 h-5" />
+              </div>
+              <h2 className="text-lg font-semibold text-slate-900">Discussion & Empathy Questions</h2>
+            </div>
+            <div className="space-y-3">
+              {book.discussion_questions.map((q, idx) => (
+                <div key={idx} className="flex items-start gap-3 bg-slate-50 rounded-xl p-4 border border-slate-100 group">
+                  <span className="text-amber-500 mt-0.5 shrink-0 font-medium text-sm">{idx + 1}.</span>
+                  <p className="flex-1 text-slate-700 leading-relaxed text-sm">{q}</p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="shrink-0 gap-1.5 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => {
+                      setCompanionPrefill(q);
+                      setShowCompanion(true);
+                    }}
+                  >
+                    <BookMarked className="w-3.5 h-3.5" />
+                    Discuss
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-slate-400 mt-4 flex items-center gap-1">
+              <BookMarked className="w-3 h-3" />
+              Hover a question and click "Discuss" to explore it with the Literary Companion
+            </p>
+          </div>
         </motion.section>
       )}
 
@@ -323,47 +356,66 @@ export default function BookDetail() {
           transition={{ delay: 0.5 }}
           className="max-w-5xl mx-auto px-6 py-12"
         >
-          <h2 className="text-xl font-semibold text-slate-900 mb-6 flex items-center gap-3">
+          <h2 className="text-xl font-semibold text-slate-900 mb-2 flex items-center gap-3">
             <BookOpen className="w-5 h-5 text-amber-600" />
             Sections
           </h2>
-          <p className="text-sm text-slate-500 mb-4">
-            AI-generated summaries to help you explore the story and chat with characters
+          <p className="text-sm text-slate-500 mb-6">
+            {book.chapters.length} section{book.chapters.length !== 1 ? 's' : ''} · 
+            {progress ? ` ${currentChapter} read` : ' not started yet'}
           </p>
 
-          <div className="space-y-3">
-            {book.chapters.map((chapter, idx) => (
-              <div
-                key={idx}
-                className={`flex gap-4 p-4 rounded-xl transition-colors ${
-                  idx < currentChapter 
-                    ? 'bg-green-50 border border-green-100' 
-                    : idx === currentChapter && progress
-                      ? 'bg-amber-50 border border-amber-200'
-                      : 'bg-white border border-slate-100'
-                }`}
-              >
-                <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-sm font-medium mt-0.5 ${
-                  idx < currentChapter 
-                    ? 'bg-green-500 text-white' 
-                    : idx === currentChapter && progress
-                      ? 'bg-amber-500 text-white'
-                      : 'bg-slate-100 text-slate-500'
-                }`}>
-                  {idx + 1}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className={`font-medium ${idx <= currentChapter ? 'text-slate-900' : 'text-slate-600'}`}>
-                    {chapter.title}
-                  </p>
-                  {chapter.content && (
-                    <p className="text-sm text-slate-500 mt-1 leading-relaxed line-clamp-3">
-                      {chapter.content}
+          <div className="space-y-2">
+            {book.chapters.map((chapter, idx) => {
+              const isRead = idx < currentChapter;
+              const isCurrent = idx === currentChapter && !!progress;
+              // Content may be full chapter text — show only first 200 chars as a teaser
+              const teaser = chapter.content
+                ? chapter.content.replace(/\s+/g, ' ').trim().slice(0, 200) + (chapter.content.length > 200 ? '…' : '')
+                : null;
+
+              return (
+                <div
+                  key={idx}
+                  className={`flex gap-4 p-4 rounded-xl transition-colors ${
+                    isRead
+                      ? 'bg-green-50 border border-green-100'
+                      : isCurrent
+                        ? 'bg-amber-50 border border-amber-200'
+                        : 'bg-white border border-slate-100'
+                  }`}
+                >
+                  <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-sm font-medium mt-0.5 ${
+                    isRead
+                      ? 'bg-green-500 text-white'
+                      : isCurrent
+                        ? 'bg-amber-500 text-white'
+                        : 'bg-slate-100 text-slate-500'
+                  }`}>
+                    {idx + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-medium ${idx <= currentChapter ? 'text-slate-900' : 'text-slate-600'}`}>
+                      {chapter.title || `Section ${idx + 1}`}
                     </p>
+                    {teaser && (
+                      <p className="text-sm text-slate-400 mt-1 leading-relaxed">
+                        {teaser}
+                      </p>
+                    )}
+                  </div>
+                  {(isRead || isCurrent) && (
+                    <div className="shrink-0 flex items-center">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        isRead ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {isRead ? 'Read' : 'Current'}
+                      </span>
+                    </div>
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </motion.section>
       )}
@@ -403,6 +455,20 @@ export default function BookDetail() {
         onOpenChange={setShowContentGenerator}
         book={book}
       />
+
+      {/* Literary Companion Panel */}
+      <AnimatePresence>
+        {showCompanion && (
+          <LiteraryCompanionPanel
+            book={book}
+            currentChapter={progress?.current_chapter || 0}
+            currentPage={progress?.current_page}
+            prefillMessage={companionPrefill}
+            onClose={() => { setShowCompanion(false); setCompanionPrefill(''); }}
+            onPositionUpdate={() => {}}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

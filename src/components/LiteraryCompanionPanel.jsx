@@ -79,11 +79,13 @@ export default function LiteraryCompanionPanel({
   currentPage,
   onClose,
   onPositionUpdate,
+  prefillMessage = '',
 }) {
   const [chat, setChat] = useState(null);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const prefillSentRef = useRef(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
@@ -116,6 +118,15 @@ export default function LiteraryCompanionPanel({
     init();
     return () => { cancelled = true; };
   }, [book.id]);
+
+  // Pre-fill textarea with the discussion question once ready
+  useEffect(() => {
+    if (!isInitializing && chat && prefillMessage && !prefillSentRef.current) {
+      prefillSentRef.current = true;
+      setInput(prefillMessage);
+      setTimeout(() => textareaRef.current?.focus(), 100);
+    }
+  }, [isInitializing, chat, prefillMessage]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading || !chat) return;
