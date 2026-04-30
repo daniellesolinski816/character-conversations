@@ -91,9 +91,11 @@ export default function CharacterChatPanel({
   const handleSend = async () => {
     if (!input.trim() || isTyping) return;
 
+    const userInput = input.trim();
+
     const userMessage = {
       role: 'user',
-      content: input.trim(),
+      content: userInput,
       timestamp: new Date().toISOString(),
       chapter_context: currentChapter
     };
@@ -202,7 +204,7 @@ ${character.personality_quirks.map(q => `- ${q}`).join('\n')}` : '';
     - "I couldn't eat. The thought of food made me nauseous."
     - "I smiled through the whole thing, but my jaw ached afterwards from how hard I was clenching it."
 
-    The reader says: "${input.trim()}"
+    The reader says: "${userInput}"
 
     Respond as ${character.name} with emotional depth, mixed feelings, specific moment references, and occasionally invite the reader's perspective. Keep it conversational (2-4 sentences, sometimes slightly longer for emotional moments):`;
 
