@@ -1,0 +1,92 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "total_books_read": {
+      "type": "number",
+      "default": 0
+    },
+    "total_sections_read": {
+      "type": "number",
+      "default": 0
+    },
+    "total_chats": {
+      "type": "number",
+      "default": 0
+    },
+    "total_discussions": {
+      "type": "number",
+      "default": 0
+    },
+    "badges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "earned_at": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "current_streak": {
+      "type": "number",
+      "default": 0
+    },
+    "longest_streak": {
+      "type": "number",
+      "default": 0
+    },
+    "last_active_date": {
+      "type": "string"
+    },
+    "favorite_genres": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reading_goals": {
+      "type": "object",
+      "properties": {
+        "weekly_sections": {
+          "type": "number",
+          "default": 5
+        },
+        "weekly_chats": {
+          "type": "number",
+          "default": 3
+        }
+      }
+    },
+    "weekly_progress": {
+      "type": "object",
+      "properties": {
+        "sections_read": {
+          "type": "number",
+          "default": 0
+        },
+        "chats_completed": {
+          "type": "number",
+          "default": 0
+        },
+        "week_start": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": []
+}

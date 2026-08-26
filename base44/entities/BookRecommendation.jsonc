@@ -1,0 +1,52 @@
+{
+  "name": "BookRecommendation",
+  "type": "object",
+  "properties": {
+    "book_id": {
+      "type": "string",
+      "description": "Reference to the recommended book"
+    },
+    "recommender_email": {
+      "type": "string",
+      "description": "Email of the user recommending the book"
+    },
+    "recommender_name": {
+      "type": "string",
+      "description": "Name of the recommender"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Why they recommend this book"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags describing the book (e.g., 'emotional', 'action-packed')"
+    },
+    "rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Rating out of 5"
+    },
+    "upvotes": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of upvotes from other users"
+    },
+    "upvoted_by": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Emails of users who upvoted"
+    }
+  },
+  "required": [
+    "book_id",
+    "reason"
+  ]
+}

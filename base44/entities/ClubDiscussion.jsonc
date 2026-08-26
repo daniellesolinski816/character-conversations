@@ -1,0 +1,56 @@
+{
+  "name": "ClubDiscussion",
+  "type": "object",
+  "properties": {
+    "club_id": {
+      "type": "string",
+      "description": "Reference to the book club"
+    },
+    "book_id": {
+      "type": "string",
+      "description": "Reference to the book"
+    },
+    "title": {
+      "type": "string",
+      "description": "Discussion topic title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Initial post content"
+    },
+    "author_name": {
+      "type": "string"
+    },
+    "author_email": {
+      "type": "string"
+    },
+    "replies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "author_name": {
+            "type": "string"
+          },
+          "author_email": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "shared_chat_id": {
+      "type": "string",
+      "description": "Optional linked character chat"
+    }
+  },
+  "required": [
+    "club_id",
+    "title"
+  ]
+}

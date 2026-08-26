@@ -1,0 +1,58 @@
+{
+  "name": "BookClub",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Club name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Club description"
+    },
+    "cover_image": {
+      "type": "string",
+      "description": "Club cover image URL"
+    },
+    "is_private": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the club is private"
+    },
+    "join_code": {
+      "type": "string",
+      "description": "Code to join private clubs"
+    },
+    "members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "member"
+            ]
+          },
+          "joined_at": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "current_book_id": {
+      "type": "string",
+      "description": "Currently reading book"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

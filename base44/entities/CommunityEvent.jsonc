@@ -1,0 +1,60 @@
+{
+  "name": "CommunityEvent",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "new_discussion",
+        "shared_chat",
+        "book_completed",
+        "badge_earned",
+        "club_created",
+        "member_joined"
+      ],
+      "description": "Type of community event"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "related_book_id": {
+      "type": "string"
+    },
+    "related_club_id": {
+      "type": "string"
+    },
+    "related_discussion_id": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "book_title": {
+          "type": "string"
+        },
+        "club_name": {
+          "type": "string"
+        },
+        "character_name": {
+          "type": "string"
+        },
+        "badge_name": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": [
+    "type",
+    "title"
+  ]
+}

@@ -1,0 +1,198 @@
+{
+  "name": "UserWriting",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Title of the writing"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Brief summary of the story"
+    },
+    "content": {
+      "type": "string",
+      "description": "The full text content"
+    },
+    "genre": {
+      "type": "string",
+      "enum": [
+        "fiction",
+        "fantasy",
+        "sci-fi",
+        "romance",
+        "mystery",
+        "thriller",
+        "horror",
+        "drama",
+        "comedy",
+        "other"
+      ],
+      "description": "Genre of the writing"
+    },
+    "characters": {
+      "type": "array",
+      "description": "Characters extracted or defined",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "protagonist",
+              "antagonist",
+              "supporting",
+              "narrator",
+              "other"
+            ]
+          },
+          "short_description": {
+            "type": "string",
+            "description": "1-2 sentence hook"
+          },
+          "backstory": {
+            "type": "string",
+            "description": "Derived from the story"
+          },
+          "personality_traits": {
+            "type": "string",
+            "description": "Comma-separated traits"
+          },
+          "values_and_motivations": {
+            "type": "string",
+            "description": "What they care about, what they fear"
+          },
+          "empathy_focus": {
+            "type": "string",
+            "description": "How they help writer see others perspectives"
+          },
+          "safety_boundaries": {
+            "type": "string",
+            "description": "Content restrictions for this character"
+          },
+          "emotional_arc": {
+            "type": "object",
+            "description": "Character's emotional journey",
+            "properties": {
+              "starting_state": {
+                "type": "string",
+                "description": "Emotional state at the beginning"
+              },
+              "growth_points": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Key moments of emotional growth or change"
+              },
+              "unresolved_conflicts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Internal or external conflicts still unresolved"
+              },
+              "potential_growth": {
+                "type": "string",
+                "description": "Where this character could grow next"
+              }
+            }
+          },
+          "canon_events": {
+            "type": "array",
+            "description": "Key events in the character's history",
+            "items": {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "type": "string",
+                  "description": "Brief title of the event"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "What happened and its impact"
+                },
+                "emotional_impact": {
+                  "type": "string",
+                  "description": "How this affected the character"
+                }
+              }
+            }
+          },
+          "relationships": {
+            "type": "array",
+            "description": "Relationships with other characters",
+            "items": {
+              "type": "object",
+              "properties": {
+                "character_name": {
+                  "type": "string"
+                },
+                "relationship_type": {
+                  "type": "string",
+                  "enum": [
+                    "friend",
+                    "enemy",
+                    "mentor",
+                    "student",
+                    "rival",
+                    "family",
+                    "lover",
+                    "ally",
+                    "neutral"
+                  ]
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Nature of the relationship"
+                }
+              }
+            }
+          },
+          "training_examples": {
+            "type": "array",
+            "description": "User-provided dialogue examples for training",
+            "items": {
+              "type": "object",
+              "properties": {
+                "context": {
+                  "type": "string",
+                  "description": "Situation or prompt"
+                },
+                "response": {
+                  "type": "string",
+                  "description": "How the character would respond"
+                }
+              }
+            }
+          },
+          "personality_quirks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Specific quirks or mannerisms"
+          }
+        }
+      }
+    },
+    "discussion_questions": {
+      "type": "array",
+      "description": "Discussion questions about the writing",
+      "items": {
+        "type": "string"
+      }
+    },
+    "cover_image": {
+      "type": "string",
+      "description": "Optional cover image URL"
+    }
+  },
+  "required": [
+    "title",
+    "content"
+  ]
+}

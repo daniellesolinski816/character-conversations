@@ -1,0 +1,135 @@
+{
+  "name": "CharacterChat",
+  "type": "object",
+  "properties": {
+    "book_id": {
+      "type": "string",
+      "description": "Reference to the book"
+    },
+    "character_name": {
+      "type": "string",
+      "description": "Name of the character"
+    },
+    "character_type": {
+      "type": "string",
+      "enum": [
+        "published",
+        "original"
+      ],
+      "default": "published",
+      "description": "Whether this character is from a published book or the user's original writing"
+    },
+    "messages": {
+      "type": "array",
+      "description": "Chat messages",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "character"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "chapter_context": {
+            "type": "number",
+            "description": "Section number when message was sent"
+          }
+        }
+      }
+    },
+    "is_shared": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this chat can be shared in clubs"
+    },
+    "shared_with_clubs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Club IDs this chat is shared with"
+    },
+    "memory_summary": {
+      "type": "string",
+      "description": "AI-generated summary of conversation history for character memory"
+    },
+    "user_details": {
+      "type": "object",
+      "description": "Specific memorable details about the user",
+      "properties": {
+        "favorite_characters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Characters the user has expressed liking"
+        },
+        "interesting_plot_points": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Plot points the user seemed interested in"
+        },
+        "recurring_themes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Themes the user keeps bringing up"
+        },
+        "personal_connections": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Personal stories or connections user shared"
+        },
+        "questions_asked": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Important questions user has asked"
+        },
+        "opinions_expressed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Strong opinions user has shared about the book"
+        }
+      }
+    },
+    "user_preferences": {
+      "type": "object",
+      "description": "Remembered user preferences from conversations",
+      "properties": {
+        "interests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "discussed_topics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "book_id",
+    "character_name"
+  ]
+}
